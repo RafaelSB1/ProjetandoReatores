@@ -1,0 +1,255 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load mathjax %}
+{% load static %}
+
+{% block title %}Exemplo 13.1{% endblock title %}
+
+{% block exemplo %}Exemplo 13.1{% endblock exemplo %}
+
+{% block content %}
+<!-- Configuração inline do Mathjax -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [['$', '$']],
+            displayMath: [['$$', '$$']],
+            processEscapes: true,
+            processEnvironments: true,
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+            TeX: {
+                equationNumbers: { autoNumber: 'AMS' },
+                extensions: ['AMSmath.js', 'AMSsymbols.js', 'autobold.js']
+            }
+        }
+    });
+    function mostrarElemento(id) {
+        document.getElementById(id).style.display = 'block';
+    }
+    MathJax.Hub.Queue(function() {
+        // Coloque aqui o código para exibir ou fazer algo com o conteúdo
+        mostrarElemento('conteudo1');
+        mostrarElemento('conteudo2');
+        mostrarElemento('conteudo3');
+    });
+</script>
+
+<div class="row border rounded-top p-4" >
+    <p><h5 class="text-center">Exemplo 13.1 Reator em Batelada com uma reação exotérmica</h5></p>
+    <p>Ainda é inverno e, embora você sonhasse com uma transferência para a fábrica na costa tropical do sul da Flórida, infelizmente você ainda é o engenheiro do CSTR do Exemplo 12.3, empregado na produção de propilenoglicol.</p>
+    <p class="text-center" id="conteudo1" style="display: none;"> 
+        <img src="{% static 'img/e131-1.png' %}" alt="" width="365" height="110">
+    </p>
+    <p>
+        Você está considerando a possibilidade de instalar um novo e atraente CSTR, revestido internamente de vidro e com um volume 
+        de 1.000 dm³. Você decide então fazer uma rápida verificação da cinética da reação e da temperatura adiabática máxima.
+         Para essa finalidade, você conta com um elegante e bem equipado reator em batelada agitado de 40 dm³ (~10 gal), que 
+         você solicitou de uma empresa. Você carrega (ou seja, enche) esse reator com 4 dm3 (~1 gal) de óxido de etileno, 4 dm3 
+         (~1 gal) de metanol e 10 dm³ (~2,5 gal) de água contendo 0,1% em massa de H<sub>2</sub>SO<sub>4</sub>. Por motivos de segurança, o reator é 
+         instalado em um galpão às margens do Lago Walloon (você não gostaria que toda a planta industrial fosse destruída, 
+         caso o reator explodisse). Nessa época do ano, no norte de Michigan, a temperatura inicial de todos esses materiais 
+         é 276 K (3°C). Temos que ter cuidado aqui! Se a temperatura do reator aumentar acima de 350 K (77°C), uma reação secundária, 
+         mais exotérmica, acontecerá, causando descontrole e explosão subsequente, semelhante à ocorrida na explosão da fábrica da 
+         T2 Laboratory, na Flórida.
+    </p>
+    <p>Embora você tenha solicitado a obtenção de dados para essa reação ao laboratório nacional de pesquisa de Jofostan, o departamento 
+        de compras decidiu economizar dinheiro e comprá-lo da Internet. Os valores obtidos são</p>
+    <div id="conteudo2" style="display: none;">
+        \begin{array}{l}
+        \mathrm{E}=18.000 \mathrm{cal} / \mathrm{mol}, \Delta \mathrm{H}_{\mathrm{Rx}}^{\circ}=-20.202 \mathrm{~cal} / \mathrm{mol}, \mathrm{C}_{\mathrm{P}_{\mathrm{A}}}=35 \mathrm{~cal} / \mathrm{mol} / \mathrm{K}, \\
+        \mathrm{C}_{\mathrm{P}_{\mathrm{B}}}=18 \mathrm{~cal} / \mathrm{mol} / \mathrm{K}, \mathrm{C}_{\mathrm{P}_{\mathrm{C}}}=46 \mathrm{~cal} / \mathrm{mol} / \mathrm{Ke} \mathrm{C}_{\mathrm{P}_{\mathrm{M}}}=19,5 \mathrm{~cal} / \mathrm{mol} / \mathrm{K}
+        \end{array}
+    </div>
+    <p class="pt-2">O Prof. Dr. Sven Köttlov se opôs a esta compra pela Internet e disse que deveria ser registrado que ele é cético em relação aos valores desses parâmetros. 
+        As concentrações iniciais do óxido de etileno puro e do metanol são 13,7 mol/dm³ e 24,7 mol/dm³, respectivamente. Consequentemente, os números iniciais de mols adicionados ao reator são</p>
+    <div id="conteudo3" style="display: none;">
+        \begin{array}
+        \hline \text { A : Óxido de etileno: } & \mathrm{N}_{\mathrm{A} 0}=\left(13,7 \mathrm{~mol} / \mathrm{dm}^3\right)\left(4 \mathrm{~dm}^3\right)=54,8 \mathrm{~mol} \\
+        \text { B: Água: } & \mathrm{N}_{\mathrm{B0}}=\left(55,5 \mathrm{~mol} / \mathrm{dm}^3\right)\left(10 \mathrm{~dm}^3\right)=555 \mathrm{~mol} \\
+        \text { M: Metanol : } & \mathrm{N}_{\mathrm{M}}=\left(24,7 \mathrm{~mol} / \mathrm{dm}^3\right)\left(4 \mathrm{~dm}^3\right)=98,8 \mathrm{~mol}
+        \end{array}
+    </div>
+    <p>O catalisador ácido sulfúrico ocupa um espaço insignificante; então, o volume total é de 18 dm³, enquanto os dados e a equação da taxa de reação estão no Exemplo 12.3. Trabalharemos com dois cenários: 
+        (1) conhecer o quão rápido a temperatura sobe e quanto tempo leva para atingir 350 K para uma operação adiabática, e, (2) quanto tempo demoraria para atingir 345 K se adicionarmos um trocador de calor.</p>
+    <p><b>(a)</b> Operação Adiabática</p>
+    <p><b>(b)</b> Troca de calor</p>
+
+</div>
+
+<form  method="post" id="formulario" action="{% url 'e131_batelada' %}">
+    {% csrf_token %}
+    
+    <div class="row border rounded-bottom">    
+        <div class="col-md p-3">
+            {% for field in form %}
+            {% if field.name != 'x' %}
+            {% if field.name == 'T0' %}</div><div class="col-md p-3">{% endif %}
+            <div class="row g-3 align-items-center py-1 ">
+                <div class="col-2 text-center">
+                    <label for="" class="col-form-label">{{ field.name }}</label>
+                </div>
+                <div class="col-auto">
+                    {{ field }}
+                </div>
+                <div class="col-auto">
+                    <span class="form-text">{{ field.help_text }}</span> 
+                </div>
+            </div>
+            {% else %}
+            </div><div class="col-md my-auto p-3"><div class="py-1">{{field.label}}</div>{{field}}</div>
+            {% endif %}
+            {% endfor %}
+        </div>
+        
+        
+    </div>
+    <div class="text-center py-3">
+        <input class="btn btn-light border-black" type="submit" value="Enviar" id="submit">
+    </div> 
+</form>
+
+<div class="pt-5">
+    <div class="border-bottom"><h1 class="h2 text-center">Gráficos</h1></div>
+</div>
+<div class="container-fluid">
+    <div class="col-md p-4">
+        <div class="chart-container" style="position: relative">
+            <canvas id="grafico_X"></canvas>
+        </div>
+    </div>
+    <div class="col-md p-4">
+        <div class="chart-container" style="position: relative">
+            <canvas id="grafico_T"></canvas>
+        </div>
+    </div>
+</div>
+
+<div class="py-4">
+    <div class="border-bottom"><h1 class="h2 text-center">Tabelas</h1></div>
+</div>
+<div class="container-fluid">
+<table class="table table-striped table-hover table-sm text-center p-5 border"> 
+    <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">t (s)</th>
+            <th scope="col">X</th>
+            <th scope="col">T (K)</th>
+
+        </tr>
+    </thead>
+    <tbody class="table-group-divider">
+        {% for q in qs %}
+        <tr>
+            <td>{{ q.pk }}</td>
+            <td>{{ q.t }}</td>
+            <td>{{ q.X0 }}</td>
+            <td>{{ q.T0 }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>
+
+{% endblock content %}
+
+{% block scripts %}
+<script>
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']]
+      }
+    };
+</script>
+<!-- Biblioteca Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    const ctx = document.getElementById('grafico_X').getContext('2d');
+    const myChartF = new Chart(ctx, {
+        type: 'line',
+        data: {
+            datasets: [
+                {
+                    label: 'X',
+                    data: {{X}},
+                    parsing: {
+                        yAxisKey: {{X}},
+                    },
+                },
+            ],
+        },
+        options: {
+            plugins:{
+                title: {
+                    display: true,
+                    text: 'Conversão ao longo do tempo de reação em um reator Batelada'
+                }
+            },
+            scales: {
+                x: {
+                    type: 'category',
+                    labels: {{t}}, //{{t}}, // Especifique os rótulos de categoria para o eixo x
+                    title: {
+                        display: true,
+                        text: 'Tempo (s)'
+                    }
+                },
+                y: {
+                    title:{
+                        display: true,
+                        text: 'Conversão'
+                    }
+                }
+            },
+        },
+        
+    });
+</script>
+<script>
+    const ctx2 = document.getElementById('grafico_T').getContext('2d');
+    const myChartT = new Chart(ctx2, {
+        type: 'line',
+        data: {
+            datasets: [
+                {
+                    label: 'T',
+                    data: {{T}},
+                    parsing: {
+                        yAxisKey: {{T}},
+                    },
+                },
+            ],
+        },
+        options: {
+            plugins:{
+                title: {
+                    display: true,
+                    text: 'Temperatura do reator Batelada ao longo do tempo'
+                }
+            },
+            scales: {
+                x: {
+                    type: 'category',
+                    labels: {{t}}, // Especifique os rótulos de categoria para o eixo x
+                    title: {
+                        display: true,
+                        text: 'Tempo (s)'
+                    }
+                },
+                y: {
+                    title:{
+                        display: true,
+                        text: 'Temperatura (K)'
+                    }
+                }
+            },
+        },
+        
+    });
+</script>
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
+{% endblock scripts %}

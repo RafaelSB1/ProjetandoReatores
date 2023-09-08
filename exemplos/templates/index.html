@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projetando Reatores</title>
+</head>
+<body>
+    <header class="navbar sticky-top bg-dark flex-md-nowrap p-0 text-center" data-bs-theme="dark">
+        <div class="d-flex justify-content-center align-items-center w-100">
+            <a class="navbar-brand py-2 fs-8 text-white" href="#"><h2>Projetando Reatores</h2></a>
+        </div>
+    </header>
+    <main class="container-fluid">
+        <section class="text-center py-2 pt-4">
+            <h2 class="py-2">Sua ferramenta de excelência em engenharia química</h2>
+            <div class="d-flex flex-row align-items-center">
+                <div class="col-4 pe-4"><div class="progress bg-black" aria-valuenow="100" style="height: 10px; margin-left: -10px;"></div></div>
+                <div class="p-2 col-4">
+                    <h4>Projetando Reatores é uma ferramenta web desenvolvida para complementar o ensino dos cálculos por trás dos reatores químicos</h4>
+                </div>
+                <div class="col-4 ps-4"><div class="progress bg-black" aria-valuenow="100" style="height: 10px; margin-right: -10px;"></div></div>
+            </div>
+        </section>
+        <section class="container-fluid" style="width: 80%;">
+            <div class="text-center">
+                <h2 class="py-3">Explore os Exemplos</h2>
+                <h5 class="w-50 position-relative top-100 start-50 translate-middle-x">
+                    Adaptação dos problemas contidos no livro “Elementos de Engenharia das Reações Químicas” de H. Scott Fogler, uma bibliografia clássica relativa a projeto de reatores
+                </h5>
+            </div>
+            <div class="d-flex flex-row justify-content-center text-center">
+                <div class="card p-2 m-4 shadow-sm w-25">
+                    <div class="card-body">
+                        <img src="" alt="PFR" class="p-1">
+                        <h5 class="card-title fs-3 py-1">PFR</h5>
+                        <div class="d-flex flex-column">
+                            <a href="./e122" class="link-dark link-underline-opacity-0 link-opacity-75-hover py-1 fs-5 fw-semibold">Exemplo 12.2</a>
+                            <a href="./e125" class="link-dark link-underline-opacity-0 link-opacity-75-hover py-1 fs-5 fw-semibold">Exemplo 12.5</a>
+                            <a href="./e127" class="link-dark link-underline-opacity-0 link-opacity-75-hover py-1 fs-5 fw-semibold">Exemplo 12.7</a>
+                            <a href="./p1223" class="link-dark link-underline-opacity-0 link-opacity-75-hover py-1 fs-5 fw-semibold">Problema 12.23</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card p-2 m-4 shadow-sm w-25">
+                    <div class="card-body p1-1">
+                        <img src="" alt="CSTR">
+                        <h5 class="card-title fs-3 py-1">CSTR</h5>
+                        <div class="d-flex flex-column">
+                            <a href="./e124" class="link-dark link-underline-opacity-0 link-opacity-75-hover py-1 fs-5 fw-semibold">Exemplo 12.4</a>
+                            <a href="./e126" class="link-dark link-underline-opacity-0 link-opacity-75-hover py-1 fs-5 fw-semibold">Exemplo 12.6</a>
+                            <a href="./p1216" class="link-dark link-underline-opacity-0 link-opacity-75-hover py-1 fs-5 fw-semibold">Problema 12.16</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card p-2 m-4 shadow-sm w-25">
+                    <div class="card-body p1-1">
+                        <img src="" alt="Batelada">
+                        <h5 class="card-title fs-3 py-1">Batelada</h5>
+                        <div class="d-flex flex-column">
+                            <a href="./e131" class="link-dark link-underline-opacity-0 link-opacity-75-hover py-1 fs-5 fw-semibold">Exemplo 13.1</a>
+                            <a href="./e132" class="link-dark link-underline-opacity-0 link-opacity-75-hover py-1 fs-5 fw-semibold">Exemplo 13.2</a>
+                            <a href="./e135" class="link-dark link-underline-opacity-0 link-opacity-75-hover py-1 fs-5 fw-semibold">Exemplo 13.5</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card p-2 m-4 shadow-sm w-25">
+                    <div class="card-body p1-1">
+                        <img src="" alt="PBR">
+                        <h5 class="card-title fs-3 py-1">PBR</h5>
+                        <div class="d-flex flex-column">
+                            <a href="./e102" class="link-dark link-underline-opacity-0 link-opacity-75-hover py-1 fs-5 fw-semibold">Exemplo 10.2</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="d-flex flex-wrap justify-content-between align-items-center px-2 my-0 bg-black ">
+        <div class="col-md-4 d-flex align-items-center bg-black z-1 py-3">
+          <a href="/" class="mb-3 me-2 mb-md-0 text-white text-decoration-none lh-1">
+            <svg class="bi" width="30" height="24"><use xlink:href="#bootstrap"></use></svg>
+          </a>
+          <span class="mb-3 mb-md-0 text-white">© 2023 Company, Inc</span>
+        </div>
+        
+        <ul class="nav col-md-4 justify-content-end list-unstyled d-flex px-5">
+          
+          <li class="ms-3"><a class="text-white" href="#"><i class="bi bi-twitter"></i></a></li>
+          <li class="ms-3"><a class="text-white" href="#"><i class="bi bi-instagram"></i></a></li>
+          <li class="ms-3"><a class="text-white" href="#"><i class="bi bi-facebook"></i></a></li>
+        </ul>
+    </footer>
+</body>
+</html>

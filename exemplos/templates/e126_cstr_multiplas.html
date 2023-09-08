@@ -1,0 +1,182 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load mathjax %}
+
+{% block title %}Exemplo 12.6{% endblock title %}
+
+{% block exemplo %}Exemplo 12.6{% endblock exemplo %}
+
+{% block content %}
+<!-- Configuração inline do Mathjax -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [['$', '$']],
+            displayMath: [['$$', '$$']],
+            processEscapes: true,
+            processEnvironments: true,
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+            TeX: {
+                equationNumbers: { autoNumber: 'AMS' },
+                extensions: ['AMSmath.js', 'AMSsymbols.js', 'autobold.js']
+            }
+        }
+    });
+    function mostrarElemento(id) {
+        document.getElementById(id).style.display = 'block';
+    }
+    MathJax.Hub.Queue(function() {
+        // Coloque aqui o código para exibir ou fazer algo com o conteúdo
+        mostrarElemento('conteudo1');
+        mostrarElemento('conteudo3');
+    });
+</script>
+
+<div class="row border rounded-top p-4" >
+    <p><h5 class="text-center">Exemplo 12.6: Pontos de operação de um CSTR com reações múltiplas</h5></p>
+    <p>As reações elementares em fase líquida</p>
+    <p class="text-center" id="conteudo1" style="display: none;">$A \stackrel{k_1}{\longrightarrow} \mathrm{B} \stackrel{k_2}{\longrightarrow} \mathrm{C}$</p>
+    <p>ocorrem em um CSTR de <b>10 dm³</b>. Quais são as concentrações do efluente para uma vazão volumétrica de <b>1.000 dm³/min</b>, com uma concentração de <b>0,3 mol/dm³</b>? A temperatura de entrada é <b>283 K</b>.</p>
+    <p>Informações adicionais:</p>
+    <div id="conteudo3" style="display: none;">
+    \begin{aligned}
+    & C_{\mathrm{P}_{\mathrm{A}}}=C_{\mathrm{P}_{\mathrm{B}}}=C_{\mathrm{P}_{\mathrm{C}}}=200 \mathrm{~J} / \mathrm{mol} \cdot \mathrm{K} \\
+    & k_{\mathrm{I}}=3,3 \mathrm{~min}^{-1} \mathrm{~em~} 300 \mathrm{~K}, \operatorname{~com~} E_{\mathrm{I}}=9.900 \mathrm{~cal} / \mathrm{mol} \\
+    & k_2=4,58 \mathrm{~min}^{-\mathrm{I}} \mathrm{~em~} 500 \mathrm{~K}, \operatorname{~com~} E_2=27.000 \mathrm{~cal} / \mathrm{mol} \\
+    & \Delta H_{\mathrm{RxIA}}=-55.000 \mathrm{~J} / \mathrm{mol} \mathrm{A} \\
+    & \Delta H_{\mathrm{Rx} 2 \mathrm{~B}}=-7 \mathrm{I} .500 \mathrm{~J} / \mathrm{mol} \mathrm{B}\\
+    & UA=40.000 \mathrm{~J} / \mathrm{min} \cdot \mathrm{K} \operatorname{com~} T_a=57^{\circ} \mathrm{C}
+    \end{aligned}
+    </div>
+</div>
+
+<form  method="post" id="formulario" action="{% url 'e126_cstr_multiplas' %}">
+    {% csrf_token %}
+    <div class="row border rounded-bottom">   
+        <div class="col-md p-3">
+            {% for field in form %}
+            {% if field.name == 'E1' or field.name == 'x' %}</div><div class="col-md p-3">{% endif %}
+            <div class="row g-3 align-items-center py-1">
+                <div class="col-2 text-center">
+                    <label for="" class="col-form-label">{{ field.name }}</label>
+                </div>
+                <div class="col-auto">
+                    {{ field }}
+                </div>
+                <div class="col-auto">
+                    <span class="form-text">{{ field.help_text }}</span> 
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="text-center py-3">
+        <input class="btn btn-light border-black" type="submit" value="Enviar" id="submit">
+    </div> 
+</form>
+
+<div class="pt-5">
+    <div class="border-bottom"><h1 class="h2 text-center">Gráficos</h1></div>
+</div>
+<div class="">
+    <div class="col-md p-4">
+        <div class="chart-container" style="position: relative">
+            <canvas id="grafico_pontosEE_cstr"></canvas>
+        </div>
+    </div>
+</div>
+
+<div class="py-4">
+    <div class="border-bottom"><h1 class="h2 text-center">Tabelas</h1></div>
+</div>
+<div class="">
+<table class="table table-striped table-hover table-sm text-center p-5 border"> 
+    <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Temperatura (K)</th>
+            <th scope="col">C<sub>A</sub> (mol/L)</th>
+            <th scope="col">C<sub>B</sub> (mol/L)</th>
+            <th scope="col">C<sub>C</sub> (mol/L)</th>
+        </tr>
+    </thead>
+    <tbody class="table-group-divider">
+        {% for index in EE.T %}
+        <tr>
+            <td>{{ EE.T.index }}</td>
+            <td>{{ EE.CA.index }}</td>
+            <td>{{ EE.CB.index }}</td>
+            <td>{{ EE.CC.index }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>
+
+{% endblock content %}
+
+{% block scripts %}
+<script>
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']]
+      }
+    };
+</script>
+<!-- Biblioteca Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    const ctx = document.getElementById('grafico_pontosEE_cstr').getContext('2d');
+    const myChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            datasets: [
+                {
+                    label: 'GT',
+                    data: {{GT}},
+                    parsing: {
+                        yAxisKey: {{GT}},
+                    },
+                },
+                {
+                    label: 'RT',
+                    data: {{RT}},
+                    parsing: {
+                        yAxisKey: {{RT}},
+                    },
+                },
+            ],
+        },
+        options: {
+            plugins:{
+                title: {
+                    display: true,
+                    text: 'Pontos de operação do CSTR'
+                }
+            },
+            scales: {
+                x: {
+                    type: 'category',
+                    labels: {{T}}, // Especifique os rótulos de categoria para o eixo x
+                    title: {
+                        display: true,
+                        text: 'Temperatura (K)'
+                    }
+                },
+                y: {
+                    title:{
+                        display: true,
+                        text: 'Calor (cal/mol)'
+                    }
+                }
+            },
+        },
+        
+    });
+    </script>
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
+{% endblock scripts %}

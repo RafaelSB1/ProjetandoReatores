@@ -1,0 +1,207 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load mathjax %}
+{% load static %}
+
+{% block title %}Exemplo 12.4{% endblock title %}
+
+{% block exemplo %}Exemplo 12.4{% endblock exemplo %}
+
+{% block content %}
+<!-- Configuração inline do Mathjax -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [['$', '$']],
+            displayMath: [['$$', '$$']],
+            processEscapes: true,
+            processEnvironments: true,
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+            TeX: {
+                equationNumbers: { autoNumber: 'AMS' },
+                extensions: ['AMSmath.js', 'AMSsymbols.js', 'autobold.js']
+            }
+        }
+    });
+    function mostrarElemento(id) {
+        document.getElementById(id).style.display = 'block';
+    }
+    MathJax.Hub.Queue(function() {
+        // Coloque aqui o código para exibir ou fazer algo com o conteúdo
+        mostrarElemento('conteudo1');
+        mostrarElemento('conteudo2');
+        mostrarElemento('conteudo3');
+    });
+</script>
+
+<div class="row border rounded-top p-4" >
+    <p><h5 class="text-center">Exemplo 12.4 CSTR com uma Serpentina de Resfriamento</h5></p>
+    <p>Propilenoglicol é produzido pela hidrólise de óxido de propileno:</p>
+    <p class="text-center" id="conteudo1" style="display: none;"> 
+        <img src="{% static 'img/e131-1.png' %}" alt="" width="365" height="110">
+    </p>
+    <p>
+        Vamos trabalhar com este problema em lbm, s, ft³ e lb-mol em vez de g, mol e m³, de modo a dar ao leitor maior prática 
+        ao trabalhar com sistemas inglês e métrico. Por quê? Muitas plantas ainda usam o sistema inglês de unidades.
+    </p>
+    <p>Você está alimentando 2.500 lbm/h (43,04 lb-mol/h) de óxido de propileno (O.P.) em um reator. A corrente de alimentação 
+        consiste em (1) uma mistura equivolumétrica de óxido de propileno (46,62 ft³/h) e de metanol (46,62 ft³/h) e (2) água 
+        contendo 0,1% em massa de H<sub>2</sub>SO<sub>4</sub>. A vazão volumétrica da água é 233,1 ft³/h, que é 2,5 vezes a vazão de metanol-O.P. As 
+        taxas molares correspondentes de metanol e água são 71,87 e 802,8 lb-mol/h, respectivamente. A mistura água-óxido de 
+        propileno-metanol sofre uma leve contração no volume da mistura (aproximadamente 3%), mas você despreza essa diminuição 
+        em seus cálculos. A temperatura de ambas as correntes de alimentação é de 58°F antes da mistura, há, porém, um aumento 
+        imediato de 17°F na temperatura após a mistura das duas correntes de alimentação, causado pelo calor de mistura. A temperatura 
+        na entrada de todas as correntes de alimentação é então considerada como 75°F.</p>
+    <div id="conteudo2" style="display: none;" class="text-center">
+        <img src="{% static 'img/e124-1.png' %}" alt="" width="410" height="220">
+    </div>
+    <p class="pt-2"> A equipe de engenharia Furusawa no Japão estabelece que, sob condições similares àquelas que você está operando, 
+        a reação é de aparente primeira ordem na concentração do óxido de propileno e de aparente ordem zero em excesso de água, com 
+        a constante de taxa de reação sendo.</p>
+    <div id="conteudo3" style="display: none;">
+        $$ k=A e^{-E / R T}=16,96 \times 10^{12}\left(e^{-32400 / R T}\right) \mathrm{h}^{-1} $$
+    </div>
+    <p>A unidade de E está em Btu/lb-mol e a de T em °R.</p>
+    <p>Há uma restrição importante em sua operação. O óxido de propileno é uma substância de baixo ponto de ebulição. Com a mistura 
+        que você está usando, a equipe de segurança sente que você não pode exceder uma temperatura de operação de 125°F, senão você 
+        perderá muito óxido por vaporização através do sistema de ventilação.</p>
+    <p>
+        A serpentina de resfriamento tem 40 ft² de superfície de resfriamento e a vazão da água de resfriamento dentro da serpentina
+        é suficientemente grande, de modo que uma temperatura constante de resfriamento de 85°F possa ser mantida. Um coeficiente 
+        global de transferência de calor típico para tal serpentina é 100 Btu/h&#x22C5 ft²&#x22C5 °F. O reator satisfará a restrição prévia de 125°F 
+        para a temperatura máxima, se a serpentina de resfriamento for usada?
+    </p>
+        
+</div>
+
+<form  method="post" id="formulario" action="{% url 'e124_cstr' %}">
+    {% csrf_token %}
+    
+    <div class="row border rounded-bottom">    
+        <div class="col-md p-3">
+            {% for field in form %}
+            {% if field.name == 'FA0' %}</div><div class="col-md p-3">{% endif %}
+            <div class="row g-3 align-items-center py-1 ">
+                <div class="col-2 text-center">
+                    <label for="" class="col-form-label">{{ field.name }}</label>
+                </div>
+                <div class="col-auto">
+                    {{ field }}
+                </div>
+                <div class="col-auto">
+                    <span class="form-text">{{ field.help_text }}</span> 
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        
+    </div>
+    <div class="text-center py-3">
+        <input class="btn btn-light border-black" type="submit" value="Enviar" id="submit">
+    </div> 
+</form>
+
+<div class="pt-5">
+    <div class="border-bottom"><h1 class="h2 text-center">Gráficos</h1></div>
+</div>
+<div class="container-fluid">
+    <div class="col-md p-4">
+        <div class="chart-container" style="position: relative">
+            <canvas id="grafico_X"></canvas>
+        </div>
+    </div>
+</div>
+
+<div class="py-4">
+    <div class="border-bottom"><h1 class="h2 text-center">Tabelas</h1></div>
+</div>
+<div class="container-fluid">
+<table class="table table-striped table-hover table-sm text-center p-5 border"> 
+    <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">T (°R)</th>
+            <th scope="col">X<sub>BM</sub></th>
+            <th scope="col">X<sub>BE</sub></th>
+
+        </tr>
+    </thead>
+    <tbody class="table-group-divider">
+        {% for q in qs %}
+        <tr>
+            <td>{{ q.pk }}</td>
+            <td>{{ q.T0 }}</td>
+            <td>{{ q.XBM }}</td>
+            <td>{{ q.XBE }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>
+
+{% endblock content %}
+
+{% block scripts %}
+<script>
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']]
+      }
+    };
+</script>
+<!-- Biblioteca Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    const ctx = document.getElementById('grafico_X').getContext('2d');
+    const myChartF = new Chart(ctx, {
+        type: 'line',
+        data: {
+            datasets: [
+                {
+                    label: 'XBM',
+                    data: {{XBM}},
+                    parsing: {
+                        yAxisKey: {{XBM}},
+                    },
+                },
+                {
+                    label: 'XBE',
+                    data: {{XBE}},
+                    parsing: {
+                        yAxisKey: {{XBE}},
+                    },
+                },
+            ],
+        },
+        options: {
+            plugins:{
+                title: {
+                    display: true,
+                    text: 'Conversão x Temperatura: '
+                }
+            },
+            scales: {
+                x: {
+                    type: 'category',
+                    labels: {{T}}, //{{t}}, // Especifique os rótulos de categoria para o eixo x
+                    title: {
+                        display: true,
+                        text: 'Temperatura (°R)'
+                    }
+                },
+                y: {
+                    title:{
+                        display: true,
+                        text: 'Conversão'
+                    }
+                }
+            },
+        },
+        
+    });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
+{% endblock scripts %}

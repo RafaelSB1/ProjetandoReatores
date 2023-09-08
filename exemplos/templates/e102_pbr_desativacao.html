@@ -1,0 +1,295 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load mathjax %}
+{% load static %}
+
+{% block title %}Exemplo 10.2{% endblock title %}
+
+{% block exemplo %}Exemplo 10.2{% endblock exemplo %}
+
+{% block content %}
+<!-- Configuração inline do Mathjax -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [['$', '$']],
+            displayMath: [['$$', '$$']],
+            processEscapes: true,
+            processEnvironments: true,
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+            TeX: {
+                equationNumbers: { autoNumber: 'AMS' },
+                extensions: ['AMSmath.js', 'AMSsymbols.js', 'autobold.js']
+            }
+        }
+    });
+    function mostrarElemento(id) {
+        document.getElementById(id).style.display = 'block';
+    }
+    MathJax.Hub.Queue(function() {
+        // Coloque aqui o código para exibir ou fazer algo com o conteúdo
+        mostrarElemento('conteudo1');
+        mostrarElemento('conteudo2');
+        mostrarElemento('conteudo3');
+    });
+</script>
+
+<div class="row border rounded-top p-4" >
+    <p><h5 class="text-center">Exemplo 10.2 Projeto de Reator Catalítico</h5></p>
+    <p>A hidrodesmetilação de tolueno deve ocorrer em um reator catalítico PBR.</p>
+    <p class="text-center" id="conteudo1" style="display: none;"> 
+        $$ C_{6}H_{5}CH_{3}+H_{2} \xrightarrow[catalisador]{} C_{6}H_{6} + CH_{4} $$
+    </p>
+    <p>
+        A taxa molar de alimentação de tolueno para o reator é 50 mol/min e o reator é operado a 40 atm e a 640°C. A alimentação 
+        consiste em 30% de tolueno, 45% de hidrogênio e 25% de inertes. Hidrogênio é usado em excesso para ajudar a prevenir a 
+        formação de coque. O parâmetro de queda de pressão, &#x03b1, é 9,8 &#x00d7 10<sup>-5</sup> kg<sup>-1</sup>.
+        Faça um gráfico e analise a conversão, a razão de pressão, p, e as pressões parciais de tolueno, hidrogênio e benzeno 
+        em função da massa de catalisador no PBR.
+    </p>
+</div>
+
+<form  method="post" id="formulario" action="{% url 'e102_pbr_desativacao' %}">
+    {% csrf_token %}
+    <div class="row border rounded-bottom">    
+        <div class="col-md p-3">
+            {% for field in form %}
+            {% if field.name == 'tf' %}</div><div class="col-md p-3">{% endif %}
+            <div class="row g-3 align-items-center py-1 ">
+                <div class="col-2 text-center">
+                    <label for="" class="col-form-label">{{ field.name }}</label>
+                </div>
+                <div class="col-auto">
+                    {{ field }}
+                </div>
+                <div class="col-auto">
+                    <span class="form-text">{{ field.help_text }}</span> 
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="text-center py-3">
+        <input class="btn btn-light border-black" type="submit" value="Enviar" id="submit">
+    </div> 
+</form>
+
+<div class="pt-5">
+    <div class="border-bottom"><h1 class="h2 text-center">Gráficos</h1></div>
+</div>
+<div class="container-fluid">
+    <div class="col-md p-4">
+        <div class="chart-container" style="position: relative">
+            <canvas id="grafico_Xp"></canvas>
+        </div>
+    </div>
+    <div class="col-md p-4">
+        <div class="chart-container" style="position: relative">
+            <canvas id="grafico_P"></canvas>
+        </div>
+    </div>
+    <div class="col-md p-4">
+        <div class="chart-container" style="position: relative">
+            <canvas id="grafico_a"></canvas>
+        </div>
+    </div>
+</div>
+
+<div class="py-4">
+    <div class="border-bottom"><h1 class="h2 text-center">Tabelas</h1></div>
+</div>
+<div class="container-fluid">
+<table class="table table-striped table-hover table-sm text-center p-5 border"> 
+    <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">W (kg)</th>
+            <th scope="col">X</th>
+            <th scope="col">p</th>
+            <th scope="col">PT (atm)</th>
+            <th scope="col">PH2 (atm)</th>
+            <th scope="col">PB (atm)</th>
+
+        </tr>
+    </thead>
+    <tbody class="table-group-divider">
+        {% for q in qs %}
+        <tr>
+            <td>{{ q.pk }}</td>
+            <td>{{ q.W }}</td>
+            <td>{{ q.X }}</td>
+            <td>{{ q.p }}</td>
+            <td>{{ q.PT0 }}</td>
+            <td>{{ q.PH20 }}</td>
+            <td>{{ q.PB0 }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>
+
+{% endblock content %}
+
+{% block scripts %}
+<script>
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']]
+      }
+    };
+</script>
+<!-- Biblioteca Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    const ctx = document.getElementById('grafico_Xp').getContext('2d');
+    const myChartF = new Chart(ctx, {
+        type: 'line',
+        data: {
+            datasets: [
+                {
+                    label: 'X',
+                    data: {{X}},
+                    parsing: {
+                        yAxisKey: {{X}},
+                    },
+                },
+                {
+                    label: 'p',
+                    data: {{p}},
+                    parsing: {
+                        yAxisKey: {{p}},
+                    },
+                },
+            ],
+        },
+        options: {
+            plugins:{
+                title: {
+                    display: true,
+                    text: 'Conversão e razão de pressão ao longo do PBR'
+                }
+            },
+            scales: {
+                x: {
+                    type: 'category',
+                    labels: {{W}}, //{{t}}, // Especifique os rótulos de categoria para o eixo x
+                    title: {
+                        display: true,
+                        text: 'Quantidade de catalisador (kg)'
+                    }
+                },
+                y: {
+                    title:{
+                        display: true,
+                        text: 'Conversão (X) e razão de pressão (p)'
+                    }
+                }
+            },
+        },
+        
+    });
+</script>
+<script>
+    const ctx2 = document.getElementById('grafico_P').getContext('2d');
+    const myChartT = new Chart(ctx2, {
+        type: 'line',
+        data: {
+            datasets: [
+                {
+                    label: 'PT',
+                    data: {{PT}},
+                    parsing: {
+                        yAxisKey: {{PT}},
+                    },
+                },
+                {
+                    label: 'PH2',
+                    data: {{PH2}},
+                    parsing: {
+                        yAxisKey: {{PH2}},
+                    },
+                },
+                {
+                    label: 'PB',
+                    data: {{PB}},
+                    parsing: {
+                        yAxisKey: {{PB}},
+                    },
+                },
+            ],
+        },
+        options: {
+            plugins:{
+                title: {
+                    display: true,
+                    text: 'Pressões parciais ao longo do PBR'
+                }
+            },
+            scales: {
+                x: {
+                    type: 'category',
+                    labels: {{W}}, // Especifique os rótulos de categoria para o eixo x
+                    title: {
+                        display: true,
+                        text: 'Quantidade de catalisador (kg)'
+                    }
+                },
+                y: {
+                    title:{
+                        display: true,
+                        text: 'Pressão parcial (atm)'
+                    }
+                }
+            },
+        },
+        
+    });
+</script>
+<script>
+    const ctx3 = document.getElementById('grafico_a').getContext('2d');
+    const myCharta = new Chart(ctx3, {
+        type: 'line',
+        data: {
+            datasets: [
+                {
+                    label: 'a',
+                    data: {{a}},
+                    parsing: {
+                        yAxisKey: {{a}},
+                    },
+                },
+            ],
+        },
+        options: {
+            plugins:{
+                title: {
+                    display: true,
+                    text: 'Desativação de segunda ordem do catalisador'
+                }
+            },
+            scales: {
+                x: {
+                    type: 'category',
+                    labels: {{t}}, // Especifique os rótulos de categoria para o eixo x
+                    title: {
+                        display: true,
+                        text: 'Tempo de operação(dia)'
+                    }
+                },
+                y: {
+                    title:{
+                        display: true,
+                        text: 'Coeficiente de atividade'
+                    }
+                }
+            },
+        },
+        
+    });
+</script>
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
+{% endblock scripts %}

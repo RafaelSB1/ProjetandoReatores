@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}PBR3{% endblock title %}
+
+{% block exemplo %}PBR3 - Desativação do Catalisador{% endblock exemplo %}
+
+{% block content %}
+<div class="row border rounded-top p-4" >
+    <p><h5 class="text-center">Cálculo da Conversão com Decaimento Catalítico em Reatores em Batelada</h5></p>
+    <p>Baseado no Exemplo 10.4 da 6ª edição do livro Elementos de Engenharia das Reações Químicas de H. Scott Fogler.</p>
+    <p>A isomerização de primeira ordem</p>
+    <p class="text-center equacao" id="conteudo1"> 
+        $$ A \xrightarrow[]{} B $$
+    </p>
+    <p>
+        está ocorrendo isotermicamente em um reator em batelada sobre um catalisador que está decaindo devido a 
+        envelhecimento. Deduza uma equação para a conversão em função do tempo.
+    </p>
+</div>
+
+<form  method="post" id="formulario" action="{% url 'e104_pbr_desativacao' %}">
+    {% csrf_token %}
+    <div class="row border rounded-bottom">    
+        <div class="col-md pt-3 pb-md-3 mx-3 mx-md-0">
+            {% for field in form %}
+            {% if field.name == 'k0' %}</div><div class="col-md pt-md-3 mx-3 mx-md-0">{% endif %}
+            <div class="d-flex flex-wrap g-3 align-items-center py-1 ">
+                <div class="col-2 text-center">
+                    <div class="col-form-label">{{ field.name }}</div>
+                </div>
+                <div class="col-6">
+                    {{ field }}
+                </div>
+                <div class="col-auto px-3">
+                    <span class="form-text">{{ field.help_text }}</span> 
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    <section class="mx-md-3 d-flex flex-wrap">
+        <div class="text-center py-2 col-12 col-md-3">
+            <button type="button" class="btn border border-white p-1" id="lista-de-simbolos"
+                    data-bs-toggle="popover"
+                    data-bs-html="true"
+                    data-bs-placement="bottom"
+                    data-bs-content=
+                    "{% for field in form %}
+                        {% if field.name|first == 'U' or field.name|first == 'Δ' %}
+                            <div class='fs-6 py-1'><b class='fw-semibold '>{{ field.name|slice:':2' }}<sub>{{ field.name|slice:'2:' }}</sub>:</b> {{ field.label }}</div>
+                        {% elif field.name != 'x' %}
+                            <div class='fs-6 py-1'><b class='fw-semibold '>{{ field.name|first }}<sub>{{ field.name|slice:'1:' }}</sub>:</b> {{ field.label }}</div>
+                        {% endif %}
+                    {% endfor %}">
+                Lista de Símbolos <i class="bi bi-question-square"></i>
+            </button>
+        </div>
+        <div class="col-12 col-md-6 text-center py-3 justify-content-center">
+            <input class="btn btn-light border-black" type="submit" value="Enviar" id="botao">
+        </div>
+    </section>
+    <div class="d-flex justify-content-center"><div class="flex-shrink-0" id="errors-container"></div></div>
+</form>
+
+<section class="d-flex flex-wrap justify-content-center pt-5" id="cardResultados"></section>
+
+<div class="pt-5" id="titulo_grafico"></div>
+
+<div class="container-fluid">
+    <div class="row py-4 justify-content-center">
+        <div class="col-12 col-md-6 chart-container">
+            <canvas id="grafico_X"></canvas>
+        </div>
+        <div class="col-12 col-md-6 chart-container">
+            <canvas id="grafico_a"></canvas>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block scripts %}
+
+<script type="module">
+    import { criarGrafico1V, criarGrafico2V, criarGrafico3V, criarEstrutura } from "{% static 'js/scripts.js' %}";
+    document.getElementById('botao').addEventListener('click', function(event) {
+    event.preventDefault();
+    const formData = new FormData(document.getElementById('formulario')); // Obtém os dados do formulário
+    fetch("{% url 'e104_pbr_desativacao' %}", {
+        method: "POST",
+        body: formData,
+    })
+    .then(response => response.json()) // Supondo que a resposta seja JSON
+    .then(data => {
+        if (!data.sucesso) {
+        // Se houver erros, exiba-os
+        const errorsContainer = document.getElementById("errors-container");
+        errorsContainer.innerHTML = "";  // Limpe os erros anteriores, se houver
+
+        // Itere sobre os erros e exiba-os
+        for (const field in data.erros) {
+            const errorMessage = data.erros[field].join(", ");
+            const errorElement = document.createElement("div");
+            errorElement.setAttribute("class","p-1");
+            errorsContainer.setAttribute("class","alert alert-danger");
+            errorElement.innerHTML = `<strong>${listaDeSubscritos[field]} :</strong> ${errorMessage}`;
+            errorsContainer.appendChild(errorElement);
+        }
+    } else {
+        document.getElementById("errors-container").innerHTML="";
+        document.getElementById("errors-container").classList.remove("alert");
+        document.getElementById("grafico_X").remove();
+        var chart = document.getElementsByClassName("chart-container")[0];
+        var grafico = document.createElement('canvas');
+        grafico.setAttribute('id','grafico_X');
+        chart.setAttribute('class','chart-container col-9 border rounded my-1');
+        chart.appendChild(grafico);
+        criarGrafico2V(data.X, data.Xd, data.t, "X","Xd", "Conversão (X)", "Tempo (s)", "Conversão com decaimento catalítico", "grafico_X");
+        
+        document.getElementById("grafico_a").remove();
+        var chart = document.getElementsByClassName("chart-container")[1];
+        var grafico = document.createElement('canvas');
+        grafico.setAttribute('id','grafico_a');
+        chart.setAttribute('class','chart-container col-9 border rounded my-1');
+        chart.appendChild(grafico);
+        criarGrafico1V(data.a, data.t, "a", "Coeficiente de atividade", "Tempo de operação (s)", "Desativação de segunda ordem do catalisador", "grafico_a");
+        
+        // Atualize a página com os dados recebidos da view
+        // Aqui você pode manipular os dados e atualizar sua página
+        
+        document.getElementById("titulo_grafico").innerHTML = `<div class="border-bottom"><h1 class="h2 text-center">Gráficos</h1></div>`;
+
+        const unidade = ["","","s",""];
+        criarEstrutura(data, unidade);  
+    }
+    }) 
+});
+
+</script>
+
+{% endblock scripts %}

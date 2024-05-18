@@ -1,43 +1,16 @@
 {% extends 'base.html' %}
-{% load crispy_forms_tags %}
-{% load mathjax %}
 {% load static %}
 
-{% block title %}Problema 12.16{% endblock title %}
+{% block title %}CSTR3{% endblock title %}
 
-{% block exemplo %}Problema 12.16{% endblock exemplo %}
+{% block exemplo %}CSTR3 - Pontos de Operação com Reação Reversível{% endblock exemplo %}
 
 {% block content %}
-<!-- Configuração inline do Mathjax -->
-<script type="text/x-mathjax-config">
-    MathJax.Hub.Config({
-        tex2jax: {
-            inlineMath: [['$', '$']],
-            displayMath: [['$$', '$$']],
-            processEscapes: true,
-            processEnvironments: true,
-            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
-            TeX: {
-                equationNumbers: { autoNumber: 'AMS' },
-                extensions: ['AMSmath.js', 'AMSsymbols.js', 'autobold.js']
-            }
-        }
-    });
-    function mostrarElemento(id) {
-        document.getElementById(id).style.display = 'block';
-    }
-    MathJax.Hub.Queue(function() {
-        // Coloque aqui o código para exibir ou fazer algo com o conteúdo
-        mostrarElemento('conteudo1');
-        mostrarElemento('conteudo2');
-        mostrarElemento('conteudo3');
-    });
-</script>
-
 <div class="row border rounded-top p-4" >
-    <p><h5 class="text-center">P12.16B</h5></p>
+    <p><h5 class="text-center">CSTR com Troca Térmica e Reação Reversível</h5></p>
+    <p>Baseado no Problema P12.16B da 6ª edição do livro Elementos de Engenharia das Reações Químicas de H. Scott Fogler.</p>
     <p>A reação elementar reversível em fase líquida</p>
-    <p class="text-center" id="conteudo1" style="display: none;"> 
+    <p class="text-center" id="conteudo1"> 
         $$ A ⇄ B $$
     </p>
     <p>ocorre em um CSTR com um trocador de calor. A puro entra no reator.</p>
@@ -52,15 +25,26 @@
         qual seria a temperatura do reator quando o novo estado estacionário superior fosse atingido? (Resp.: 431 K.)</p>
     <p><b>(g)</b> Que valor de UA dará a máxima conversão?</p>
     <p>Informações adicionais:</p>
-    <div id="conteudo2" style="display: none;">
-        \begin{array}{ll}
-            UA = 3.600 \text{ cal/min.K} & K_{C} = 100 \text{ a } 400 \text{ K} \\
-            \frac{E}{R} = 20.000 \text{ K} & F_{A0} = 10 \text{ mol/min} \\
-            C_{PA} = C_{PB} = 40 \text{ cal/mol.K} & k = 1 \text{ min}^{-1} \text{ a } 400 \text{ K} \\
-            V = 10 \text{ dm}^3 & \text{Temperatura ambiente, Ta} = 37^\circ\text{C} \\
-            \Delta H^\circ_{\text{Rx}} = -80.000 \text{ cal/mol de A} & \text{Temperatura de alimentação, } T_{0} = 7^\circ\text{C} \\
-            v_0 = 1 \text{ dm}^3/\text{min}
-        \end{array}
+    <div class="d-flex flex-wrap justify-content-center align-items-center" id="conteudo2">
+        <div>
+        \begin{gather}
+            & UA = 3.600 \text{ cal/min.K} \notag\\
+            & \frac{E}{R} = 20.000 \text{ K} \notag\\
+            & C_{PA} = C_{PB} = 40 \text{ cal/mol.K} \notag\\
+            & \Delta H^\circ_{\text{Rx}} = -80.000 \text{ cal/mol de A} \notag\\
+            & \text{Temperatura ambiente, Ta} = 37~^\circ\text{C} \notag\\
+            & \text{Temperatura de alimentação, } T_{0} = 7~^\circ\text{C} \notag
+        \end{gather}
+        </div>
+        <div>
+        \begin{gather}
+            & F_{A0} = 10 \text{ mol/min} \notag\\
+            & K_{C} = 100 \text{ a } 400 \text{ K} \notag\\
+            & k = 1 \text{ min}^{-1} \text{ a } 400 \text{ K} \notag\\
+            & v_0 = 1 \text{ dm}^3/\text{min} \notag\\
+            & V = 10 \text{ dm}^3 \notag
+        \end{gather}
+        </div>
     </div>
     
 
@@ -87,179 +71,98 @@
         </div>
         
     </div>
-    <div class="text-center py-3">
-        <input class="btn btn-light border-black" type="submit" value="Enviar" id="submit">
-    </div> 
+    <section class="mx-md-3 d-flex flex-wrap">
+        <div class="text-center py-2 col-12 col-md-3">
+            <button type="button" class="btn border border-white p-1" id="lista-de-simbolos"
+                    data-bs-toggle="popover"
+                    data-bs-html="true"
+                    data-bs-placement="bottom"
+                    data-bs-content=
+                    "{% for field in form %}{% if field.name != 'x' %}
+                    <div class='fs-6 py-1'><b class='fw-semibold '>{{ field.name }}:</b> {{ field.label }}</div>
+                    {% endif %}{% endfor %}">
+                Lista de Símbolos <i class="bi bi-question-square"></i>
+            </button>
+        </div>
+        <div class="col-12 col-md-6 text-center py-3 justify-content-center">
+            <input class="btn btn-light border-black" type="submit" value="Enviar" id="botao">
+        </div>
+    </section>
+    <div class="d-flex justify-content-center"><div class="flex-shrink-0" id="errors-container"></div></div>
 </form>
 
-<div class="pt-5">
-    <div class="border-bottom"><h1 class="h2 text-center">Gráficos</h1></div>
-</div>
+<section class="d-flex flex-wrap justify-content-center pt-5" id="cardResultados"></section>
+
+<div class="pt-5" id="titulo_grafico"></div>
+
 <div class="container-fluid">
-    <div class="col-md p-4">
-        <div class="chart-container" style="position: relative">
+    <div class="row py-4 justify-content-center">
+        <div class="col-12 col-md-6 chart-container">
             <canvas id="grafico_X"></canvas>
         </div>
-    </div>
-    <div class="col-md p-4">
-        <div class="chart-container" style="position: relative">
+        <div class="col-12 col-md-6 chart-container">
             <canvas id="grafico_calor"></canvas>
         </div>
     </div>
 </div>
-
-<div class="py-4">
-    <div class="border-bottom"><h1 class="h2 text-center">Tabelas</h1></div>
-</div>
-<div class="container-fluid">
-<table class="table table-striped table-hover table-sm text-center p-5 border"> 
-    <thead>
-        <tr>
-            <th scope="col">#</th>
-            <th scope="col">T (K)</th>
-            <th scope="col">X<sub>BM</sub></th>
-            <th scope="col">X<sub>BE</sub></th>
-            <th scope="col">X<sub>eq</sub></th>
-            <th scope="col">G(T) (cal/mol)</th>
-            <th scope="col">R(T) (cal/mol)</th>
-        </tr>
-    </thead>
-    <tbody class="table-group-divider">
-        {% for q in qs %}
-        <tr>
-            <td>{{ q.pk }}</td>
-            <td>{{ q.T0 }}</td>
-            <td>{{ q.XBM }}</td>
-            <td>{{ q.XBE }}</td>
-            <td>{{ q.Xeq }}</td>
-            <td>{{ q.GT }}</td>
-            <td>{{ q.RT }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-</div>
-
 {% endblock content %}
 
 {% block scripts %}
-<script>
-    MathJax = {
-      tex: {
-        inlineMath: [['$', '$'], ['\\(', '\\)']]
-      }
+<script type="module">
+    import { criarGrafico2V, criarGrafico3V, criarEstrutura,modificarEstruturaEE } from "{% static 'js/scripts.js' %}";
+    document.getElementById('botao').addEventListener('click', function(event) {
+    event.preventDefault();
+    const formData = new FormData(document.getElementById('formulario')); // Obtém os dados do formulário
+    fetch("{% url 'p1216_cstr_reversivel' %}", {
+        method: "POST",
+        body: formData,
+    })
+    .then(response => response.json()) // Supondo que a resposta seja JSON
+    .then(data => {
+        if (!data.sucesso) {
+        // Se houver erros, exiba-os
+        const errorsContainer = document.getElementById("errors-container");
+        errorsContainer.innerHTML = "";  // Limpe os erros anteriores, se houver
+
+        // Itere sobre os erros e exiba-os
+        for (const field in data.erros) {
+            const errorMessage = data.erros[field].join(", ");
+            const errorElement = document.createElement("div");
+            errorElement.setAttribute("class","p-1");
+            errorsContainer.setAttribute("class","alert alert-danger");
+            errorElement.innerHTML = `<strong>${listaDeSubscritos[field]} :</strong> ${errorMessage}`;
+            errorsContainer.appendChild(errorElement);
+        }
+    } else {
+        document.getElementById("errors-container").innerHTML="";
+        document.getElementById("errors-container").classList.remove("alert");
+        document.getElementById("grafico_X").remove();
+        var chart = document.getElementsByClassName("chart-container")[0];
+        var grafico = document.createElement('canvas');
+        grafico.setAttribute('id','grafico_X');
+        chart.setAttribute('class','chart-container col-9 border rounded my-1');
+        chart.appendChild(grafico);
+        criarGrafico3V(data.Xeq, data.XBM, data.XBE, data.T, "Xeq", "XBM", "XBE", "Conversão", "Temperatura (K)", "Conversão x Temperatura: CSTR", "grafico_X");
+        
+        document.getElementById("grafico_calor").remove();
+        var chart = document.getElementsByClassName("chart-container")[1];
+        var grafico = document.createElement('canvas');
+        grafico.setAttribute('id','grafico_calor');
+        chart.setAttribute('class','chart-container col-9 border rounded my-1');
+        chart.appendChild(grafico);
+        criarGrafico2V(data.GT, data.RT, data.T, "G(T)", "R(T)", "Calor (cal/mol)", "Temperatura (K)", "Calor x Temperatura: CSTR", "grafico_calor");
+        // Atualize a página com os dados recebidos da view
+        // Aqui você pode manipular os dados e atualizar sua página
+
+        document.getElementById("titulo_grafico").innerHTML = `<div class="border-bottom"><h1 class="h2 text-center">Gráficos</h1></div>`;
+
+        const unidade = [" (K)","","",""];
+        //criarEstrutura(data, unidade);  
+        modificarEstruturaEE(data.EE, unidade)
     };
-</script>
-<!-- Biblioteca Chart.js -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    }) 
+});
 
-<script>
-    const ctx = document.getElementById('grafico_X').getContext('2d');
-    const myChartF = new Chart(ctx, {
-        type: 'line',
-        data: {
-            datasets: [
-                {
-                    label: 'Xeq',
-                    data: {{Xeq}},
-                    parsing: {
-                        yAxisKey: {{Xeq}},
-                    },
-                },
-                {
-                    label: 'XBM',
-                    data: {{XBM}},
-                    parsing: {
-                        yAxisKey: {{XBM}},
-                    },
-                },
-                {
-                    label: 'XBE',
-                    data: {{XBE}},
-                    parsing: {
-                        yAxisKey: {{XBE}},
-                    },
-                },
-            ],
-        },
-        options: {
-            plugins:{
-                title: {
-                    display: true,
-                    text: 'Conversão ao longo do tempo de reação em um reator Batelada'
-                }
-            },
-            scales: {
-                x: {
-                    type: 'category',
-                    labels: {{T}}, //{{t}}, // Especifique os rótulos de categoria para o eixo x
-                    title: {
-                        display: true,
-                        text: 'Temperatura (K)'
-                    }
-                },
-                y: {
-                    title:{
-                        display: true,
-                        text: 'Conversão'
-                    }
-                }
-            },
-        },
-        
-    });
-</script>
-<script>
-    const ctx2 = document.getElementById('grafico_calor').getContext('2d');
-    const myChartT = new Chart(ctx2, {
-        type: 'line',
-        data: {
-            datasets: [
-                {
-                    label: 'G(T)',
-                    data: {{GT}},
-                    parsing: {
-                        yAxisKey: {{GT}},
-                    },
-                },
-                {
-                    label: 'R(T)',
-                    data: {{RT}},
-                    parsing: {
-                        yAxisKey: {{RT}},
-                    },
-                },
-            ],
-        },
-        options: {
-            plugins:{
-                title: {
-                    display: true,
-                    text: 'Temperatura do reator Batelada ao longo do tempo'
-                }
-            },
-            scales: {
-                x: {
-                    type: 'category',
-                    labels: {{T}}, // Especifique os rótulos de categoria para o eixo x
-                    title: {
-                        display: true,
-                        text: 'Temperatura (K)'
-                    }
-                },
-                y: {
-                    title:{
-                        display: true,
-                        text: 'Calor gerado e retirado (cal/mol)'
-                    }
-                }
-            },
-        },
-        
-    });
 </script>
 
-
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
 {% endblock scripts %}

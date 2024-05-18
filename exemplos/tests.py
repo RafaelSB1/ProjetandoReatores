@@ -1,6 +1,10 @@
 from django.test import TestCase
 import numpy as np
-from scipy.integrate import odeint
+from scipy.integrate import odeint, quad
+from scipy.optimize import curve_fit
+from scipy.stats import linregress
+import json
+from math import factorial
 
 def StrToFloat(CI):
     for x in CI:
@@ -60,27 +64,113 @@ def e102(request):
     x = odeint(PBR, CI, W)
 
     i=0
+    vetor_W=[]
+    vetor_X=[]
     vetor_p=[]
     vetor_PT=[]
     vetor_PH2=[]
     vetor_PB=[]
     a=[]
+    for y in W:
+        vetor_W.append(float(y))
     for y in vetor_a[:,0]:
-        a.append(y)
+        a.append(float(y))
     for y in x[:,0]:
-        X=y
-        p=(1-alfa*W[i])**0.5
+        X=float(y)
+        p=(1-alfa*vetor_W[i])**0.5
         PT=PT0*(1-X)/(1+E*X)*p # E: épsilon
         PH2=PT0*(omegaH2-X)*p
         PB=PT0*X*p+PB0
 
+        vetor_X.append(X)
         vetor_p.append(float(p))
         vetor_PT.append(float(PT))
         vetor_PH2.append(float(PH2))
         vetor_PB.append(float(PB))
         i+=1
-    return  {'W':W, 'x':x, 'p':vetor_p, 'PT':vetor_PT, 'PH2':vetor_PH2, 'PB':vetor_PB, 'a':a, 't':t}
+    return  {'W':vetor_W, 'X':vetor_X, 'p':vetor_p, 'PT':vetor_PT, 'PH2':vetor_PH2, 'PB':vetor_PB, 'a':a, 't':t}
 ######## EXEMPLO 10.2 #########/
+
+######## EXEMPLO 10.3 #########
+def e103(request):
+    def f_A(x,k,KEA,KE):
+        return k*x[0]*x[1]/(1+KEA*x[2]+KE*x[0])
+    def f_B(x,k,KE):
+        return k*x[0]*x[1]/(1+KE*x[0])
+    def f_C(x,k,KE):
+        return k*x[0]*x[1]/(1+KE*x[0])**2
+    def f_D(x,k,a,b):
+        return k * x[0]**a * x[1]**b
+    def f_E(x,k,KEA,KE):
+        return k*x[0]*x[1]/(1+KEA*x[2]+KE*x[0])**2
+    def f_F(x,k,KA):
+        return k*x[0]*x[1]/(1+KA*x[2])
+
+    taxa = np.array(json.loads('['+ request.POST.get("taxa") + ']'))
+    PE = np.array(json.loads('['+ request.POST.get("PE") + ']'))
+    PH = np.array(json.loads('['+ request.POST.get("PH") + ']'))
+    PEA = np.array(json.loads('['+ request.POST.get("PEA") + ']'))
+    x=[PE,PH,PEA]
+    y = taxa
+
+    equacoes = [f_A, f_B, f_C, f_D, f_E, f_F]
+    R_quadrado = []
+    vetor_parametros = []
+    vetor_erro = []
+    for equacao in equacoes:
+        parametros, pcov = curve_fit(equacao,x,y)
+        perr = np.sqrt(np.diag(pcov)) #erro (desvio padrão)
+
+        residuo = y - equacao(x, *parametros)
+        SQ_res = np.sum(residuo**2)
+        SQ_T = np.sum((y-np.mean(y))**2)  #mean: calcula a média
+        R_quadrado.append(1 - (SQ_res/SQ_T))
+        vetor_parametros.append(parametros)
+        vetor_erro.append(perr)
+
+    maior_valor=0
+    for n in range(len(R_quadrado)):
+        if R_quadrado[n]>maior_valor:
+            maior_valor=R_quadrado[n]
+            posicao = n
+
+    vetor_parametros = [p.tolist() if isinstance(p, np.ndarray) else p for p in vetor_parametros]
+    vetor_erro = [p.tolist() if isinstance(p, np.ndarray) else p for p in vetor_erro]
+    return  {'parametros':vetor_parametros, 'erro':vetor_erro, 'R_quadrado':R_quadrado}
+######## EXEMPLO 10.3 #########/
+
+######## EXEMPLO 10.4 #########
+def e104(request):
+    E = float(request.POST.get("E")) #cal/mol
+    k1 = float(request.POST.get("k0")) #1/s
+    T1 = float(request.POST.get("Tk0")) #K
+    k1d = float(request.POST.get("k0d")) #1/s
+    T2 = float(request.POST.get("Tk0d")) #K
+    Ed = float(request.POST.get("Ed")) #cal/mol
+    R = 1.987 #cal/mol/K
+
+    T = float(request.POST.get("T")) #K #isotermico
+    k = k1*np.exp(E/R*(1/T1-1/T))
+    kd = k1d*np.exp(Ed/R*(1/T2-1/T))
+
+    def decaimento(y0,t):
+        a = 1/(1+kd*t) #decaimento de segunda ordem por sinterização
+        dXddt = k*(1-y0)*a
+        return dXddt
+
+    t = np.linspace(0,500,100)
+    a = 1/(1+kd*t) #isotermico
+    CI=0
+    Xd = odeint(decaimento,CI,t)
+    kd=0
+    X = odeint(decaimento,CI,t)
+
+    Xd = np.round(Xd,4)
+    X = np.round(X,4)
+    a = np.round(a,4)
+    t = np.round(t)
+    return  {'X':X[:,0].tolist(), 'Xd':Xd[:,0].tolist(), 't':t.tolist(), 'a':a.tolist()}
+######## EXEMPLO 10.4 #########/
 
 ######## EXEMPLO 12.2 #########
 def e122(request):
@@ -181,7 +271,7 @@ def e124(request):
     CpM= 19.5 #Btu/lb-mol·°F
     UA= 80*40 #Btu/h·°F
     conversao=4.187 # Btu/lbmol·°F para J/mol K
-    Ta= float(request.POST.get("Ta")) #°R
+    Ta= float(request.POST.get("Ta0")) #R
     TaK= Ta*5/9 #K
     R= 1.987 #Btu / lb-mol·°R
     E= 32400 #Btu/lb-mol
@@ -200,22 +290,23 @@ def e124(request):
     #VALORES INICIAIS
     T0 = float(request.POST.get("T0"))
     T0K = T0*5/9 #Temperatural inicial em K
-    TR = 528 #°R
+    TR = 528 #R
     TRK= TR*5/9 #K
     Tmax=585 #°R
-    FA0= 43.04 #lb-mol/h
-    FB0= 802.8 #lb-mol/h
-    FC0= 0
-    FM0=71.87 #lb-mol/h
-    v0= 326.3 #ft³/h
-    V= 40.1 #ft³
+    FA0= float(request.POST.get("FA0")) #lb-mol/h
+    FB0= float(request.POST.get("FB0"))#lb-mol/h
+    FC0= float(request.POST.get("FC0"))
+    FM0=float(request.POST.get("FM0")) #lb-mol/h
+    v0= float(request.POST.get("v0")) #ft³/h
+    V= float(request.POST.get("V")) #ft³
     tau= V/v0 #h
     CA0 = FA0/v0 #mol/ft³
     vetorXBM=[]
     vetorXBE=[]
+    EE={'T':[],'XBM':[],'XBE':[]}
     index=[]
 
-    vetorT=np.arange(T0,625,1)
+    vetorT=np.arange(T0,T0+100,1)
     i=0
     for T in vetorT:
         TK=T*5/9 #Temperatura em K
@@ -234,7 +325,18 @@ def e124(request):
         vetorXBE.append(XBE)
         index.append(i)
         i+=1
-    return {'T':vetorT, 'XBM':vetorXBM, 'XBE':vetorXBE, 'index':index}
+
+        tolerancia_rel = 0.02
+        tolerancia_abs = tolerancia_rel * max(abs(XBM), abs(XBE))
+
+        if abs(XBM-XBE) < tolerancia_abs:
+            if len(EE["T"])>0 and abs(EE["T"][-1]-T)<10:
+                pass
+            else:
+                EE['T'].append(round(T,2))
+                EE["XBE"].append(round(XBE,4))
+                EE["XBM"].append(round(XBM,4))
+    return {'T':vetorT, 'XBM':vetorXBM, 'XBE':vetorXBE,'index':index, 'EE':EE}
 ######## EXEMPLO 12.4 #########/
 
 ######## EXEMPLO 12.5 #########
@@ -248,7 +350,7 @@ def reacao(request):
     cpB = float(request.POST.get("cpB"))
     cpC = float(request.POST.get("cpC"))
     Ua = float(request.POST.get("Ua"))
-    Ta = float(request.POST.get("Ta"))
+    Ta = float(request.POST.get("Ta0"))
     CT0 = float(request.POST.get("CT0"))
 
 def Multiplas(CI,V):
@@ -276,7 +378,7 @@ def e126(request):
     deltaH1 = float(request.POST.get("\u0394H1"))
     deltaH2 = float(request.POST.get("\u0394H2"))
     UA = float(request.POST.get("UA"))
-    Ta = float(request.POST.get("Ta"))
+    Ta = float(request.POST.get("Ta0"))
     CpA = float(request.POST.get("cpA"))
     CpB = float(request.POST.get("cpB"))
     CpC = float(request.POST.get("cpC"))
@@ -314,12 +416,14 @@ def e126(request):
     vetorCB=[]
     vetorCC=[]
 
+    vetorEE_GT=[]
+    vetorEE_RT=[]
+
     #EDO
     #Tf valor final de temperatura em K
-    vetorT = np.arange(T0, Tf, 5)
+    vetorT = np.linspace(T0, Tf, 100, dtype=int)
 
     for T in vetorT:
-        
         CpA=alfaA+betaA*T+gamaA*T**2 # J/(mol K)
         CpB=alfaB+betaB*T+gamaB*T**2 # J/(mol K)
         CpC=alfaC+betaC*T+gamaC*T**2 # J/(mol K)
@@ -337,36 +441,37 @@ def e126(request):
         CC=tau*rC
         GT= (deltaH1*r1A+deltaH2*r2B)*V
         RT= UA*(T-Ta)+FA0*(1*CpA+FB0/FA0*CpB+FC0/FA0*CpC)*(T-T0)
-        vetorG.append(GT)
-        vetorR.append(RT)
-        dif.append(abs(GT-RT))
-        vetorCA.append(CA)
-        vetorCB.append(CB)
-        vetorCC.append(CC)
-        """
-        if abs(GT-RT)<499000:
-            EE["T"].append(float(T))
-            EE["CA"].append(round(float(CA),4)) #round(): arrendonda o valor
-            EE["CB"].append(round(float(CB),4))
-            EE["CC"].append(round(float(CC),4))
-            """
+        vetorG.append(round(float(GT),0))
+        vetorR.append(round(float(RT),0))
+        vetorCA.append(float(CA))
+        vetorCB.append(float(CB))
+        vetorCC.append(float(CC))
+        tolerancia_rel = 0.03
+        tolerancia_abs = tolerancia_rel * max(abs(GT), abs(RT))
 
-    valor_anterior=1e8
-    for i,x in enumerate(dif):
-        if x < valor_anterior:
-            valor_anterior = x
-            index=i
-            validacao=1
-        else:
-            if validacao==1:
-                EE["T"].append(vetorT[index])
-                EE["CA"].append(vetorCA[index])
-                EE["CB"].append(vetorCB[index])
-                EE["CC"].append(vetorCC[index])
-                valor_anterior=1e9
-                validacao=0
-
-        
+        if abs(abs(GT)-abs(RT)) < tolerancia_abs or abs(abs(GT)-abs(RT))<80000:
+            if len(EE["T"])>0 and abs(EE["T"][-1]-T)<30:
+                if abs(abs(GT)-abs(RT)) < abs(abs(vetorEE_GT[-1])-abs(vetorEE_RT[-1])):
+                    EE["T"].pop()
+                    EE["CA"].pop()
+                    EE["CB"].pop()
+                    EE["CC"].pop()
+                    vetorEE_GT.pop()
+                    vetorEE_RT.pop()
+                    EE["T"].append(int(T))
+                    EE["CA"].append(round(float(CA),4))
+                    EE["CB"].append(round(float(CB),4))
+                    EE["CC"].append(round(float(CC),4))
+                    vetorEE_GT.append(float(GT))
+                    vetorEE_RT.append(float(RT))
+            else:
+                EE["T"].append(int(T))
+                EE["CA"].append(round(float(CA),4))
+                EE["CB"].append(round(float(CB),4))
+                EE["CC"].append(round(float(CC),4))
+                vetorEE_GT.append(float(GT))
+                vetorEE_RT.append(float(RT))
+    vetorT = vetorT.astype(int)
     return [vetorT, vetorG, vetorR, EE]
 
 ######## EXEMPLO 12.6 #########/
@@ -409,7 +514,7 @@ def e127(request):
     CpD= 16 #cal/mol K
     CpC0= 10 #cal/mol K
     Ua= 80 #cal/(m³ min K)
-    Ta0= float(request.POST.get("Ta")) 
+    Ta0= float(request.POST.get("Ta0")) 
     mc= 50 #mol/min
     R= 1.987 #cal/mol K
     E1= 8000 #cal/mol
@@ -476,7 +581,7 @@ def e131(request):
     CpM= 19.5 #cal/mol K
     deltaCp= CpA + CpB - CpC
     UA= 10 #cal/s/K
-    Ta= float(request.POST.get("Ta"))  #K
+    Ta= float(request.POST.get("Ta0"))  #K
     mc= 10 #g/s
     R= 1.987 #cal/mol K
     E= 18000 #cal/mol
@@ -533,23 +638,18 @@ def e132(request):
     CpA= 40 #cal/mol K
     CpB= 8.38 #cal/mol K
     CpW= 18 #cal/mol K
-    Ta = float(request.POST.get("Ta"))
+    Ta = float(request.POST.get("Ta0")) # K
     R= 1.987 #cal/mol K
     E= 11273 #cal/mol
     A= 0.00017/np.exp(-E/R/461) # m³/kmol/min
     V= 5.1 #m³
 
     #VALORES INICIAIS
-    NA0=float(request.POST.get("NA0")) 
-    NB0=float(request.POST.get("NB0")) 
-    NW=float(request.POST.get("NM")) 
-    T0 = float(request.POST.get("T0")) 
+    NA0=float(request.POST.get("NA0")) #kmol
+    NB0=float(request.POST.get("NB0")) #kmol
+    NW=float(request.POST.get("NM")) #kmol - inerte (água)
+    T0 = float(request.POST.get("T0")) # K
     X0 = float(request.POST.get("X0")) 
-    NA0=9.044 # kmol
-    NB0=33.0 #kmol
-    NW=103.7 #kmol - inerte (água)
-    T0 = 448  # K
-    X0 = 0
     CA0 = NA0/V 
 
     #EDO
@@ -628,7 +728,7 @@ def p1216(request):
     CpA= 40 #cal/mol K
     CpB= 40 #cal/mol K
     UA= float(request.POST.get("UA")) #cal/min/K
-    Ta= float(request.POST.get("Ta"))  #K
+    Ta= float(request.POST.get("Ta0"))  #K
     R= 1.987 #cal/mol K
     E= 20000*R #cal/mol
 
@@ -657,7 +757,7 @@ def p1216(request):
     CA0=FA0*v0
     vetorG=[]
     vetorR=[]
-    EE={"T":[],"CA":[],"CB":[],"XBM":[],"XBE":[],"Xeq":[],"indexEE":[]} #Estado Estacionário
+    EE={"T":[],"XBM":[],"XBE":[],"Xeq":[]} #Estado Estacionário
     vetorXBM=[]
     vetorXBE=[]
     vetorXeq=[]
@@ -694,10 +794,20 @@ def p1216(request):
         vetorR.append(RT)
         index.append(i)
         i+=1
-        if np.isclose(XBM,XBE,rtol=0.09):
-            TEE.append(round(T,2))
 
-    return {'T':vetorT, 'XBM':vetorXBM, 'XBE':vetorXBE, 'Xeq':vetorXeq, 'TEE':TEE, 'GT':vetorG, 'RT':vetorR, 'index':index}
+        tolerancia_rel = 0.02
+        tolerancia_abs = tolerancia_rel * max(abs(GT), abs(RT))
+
+        if abs(GT-RT) < tolerancia_abs:
+            if len(EE["T"])>0 and abs(EE["T"][-1]-T)<10:
+                pass
+            else:
+                EE['T'].append(round(T,2))
+                EE["XBE"].append(round(XBE,4))
+                EE["XBM"].append(round(XBM,4))
+                EE["Xeq"].append(round(Xeq,4))
+
+    return {'T':vetorT, 'XBM':vetorXBM, 'XBE':vetorXBE, 'Xeq':vetorXeq, 'EE':EE, 'GT':vetorG, 'RT':vetorR, 'index':index}
 ######## PROBLEMA 12.16 #########/
 
 ######## PROBLEMA 12.23 #########
@@ -800,3 +910,248 @@ def p1223(request):
         index.append(i)
     return {'V':V, 'T':T, 'FA':FA, 'FB':FB, 'FC':FC, 'Ta':Ta, 'index':index}
 ######## PROBLEMA 12.23 #########/
+
+######## DTR1 #########
+def dtr1(request):
+    # Exemplo 17.4
+    # 2A->B  ra=-kCa²
+    
+    k = float(request.POST.get("k")) #dm³/(mol min) 
+    CA0 = float(request.POST.get("CA0")) #mol/dm³
+    V = float(request.POST.get("V")) #dm³
+    v0 = float(request.POST.get("v0")) #dm³/min
+    N0 = float(request.POST.get("N0")) #g
+    tau= V/v0
+
+    t = np.array(json.loads(request.POST.get("t"))) #min
+    dadosC = np.array(json.loads(request.POST.get("C(t)"))) #mg/dm³
+
+    grau_de_regressao = float(request.POST.get("npolinomio"))
+    regressaoC = np.polyfit(t,dadosC,grau_de_regressao)
+    C = np.poly1d(regressaoC)
+    E = C/(C.integ()(t[-1])-C.integ()(t[0]))
+    F = E.integ()
+
+    def segregado(CI,t):
+        X = CI[0]
+        dXdt = k*CA0*(1-X)**2
+        dXsegdt = X*E(t)
+        return [dXdt,dXsegdt]
+
+    def MM(CI,lamb):
+        X = CI[0]
+        dXdlamb = E(lamb)*X/(1-F(lamb)) -k*CA0*(1-X)**2
+        return dXdlamb
+
+    tODE = np.linspace(0,t[-1],100)
+    CI = [0,0]
+    x = odeint(segregado,CI,tODE)
+
+    CI = 0
+    lamb = np.linspace(t[-1],0,100)
+    xMM = odeint(MM,CI,lamb)
+
+    tm= (np.poly1d([1,0])*E).integ()
+    tm= tm(t[-1])-tm(t[0]) #min
+
+    variancia = ((np.poly1d([1,0])-tm)**2*E).integ()
+    variancia = variancia(t[-1])-variancia(t[0]) #min²
+
+    inclinacao = ((np.poly1d([1,0])-tm)**3)*E.integ()
+    inclinacao = 1/variancia**(3/2)*(inclinacao(t[-1]) - inclinacao(t[0])) #min³
+    C = list(C(tODE))
+    E = list(E(tODE))
+    F = list(F(tODE))
+
+    return {"t":np.round(tODE,0), "C":C, "E":E, "F":F, "tm":[round(tm,2)],
+     "variancia":["{:.2e}".format(variancia)],"inclinacao":["{:.2e}".format(inclinacao,2)],
+     "X":[round(x[-1,0],4)], "Xseg":[round(x[-1,1],4)], "XMM":[round(xMM[-1,0],4)]}
+
+######## DTR1 #########/
+
+######## DTR2 #########
+def dtr2(request):
+    k = float(request.POST.get("k")) #m³/(kmol min)
+    CA0 = float(request.POST.get("CA0")) #kmol/m³
+    CT0 = float(request.POST.get("CT0")) #mg/dm³
+    tau = float(request.POST.get("tau")) #min
+
+    # CSTR degrau
+    t = np.array(json.loads(request.POST.get("t"))) #min
+    dadosC = np.array(json.loads(request.POST.get("C(t)"))) #mg/dm³
+
+    lndadosC = []
+    for C in dadosC:
+        lnC = np.log(CT0/(CT0-C))
+        lndadosC.append(lnC)
+
+    a, b, r_value, p_value, std_err = linregress(t/tau, lndadosC)
+    beta= 1 - np.exp(-b)
+    alfa = (1-b)/a
+    tauS = alfa*tau/(1-beta)
+
+    #ra = - k* CAs**2 - Segunda ordem
+    CAs = (-1 + (1+4*tauS*k*CA0)**(1/2))/(2*tauS*k)
+    CA = beta*CA0 + (1-b)*CAs
+    Xmodelo = (CA0-CA)/CA0
+
+    # REATOR IDEAL
+    # X/(1-X)^2 = k*tau*CA0
+    const = k*tau*CA0
+    # const*X^2-(2*const+1)*X + const
+    X = ((2*const+1) - ((2*const+1)**2-4*const*const)**0.5)/2/const #baskara negativo
+    if X<0 or X>1:
+        X = ((2*const+1) + ((2*const+1)**2-4*const*const)**0.5)/2/const #baskara positivo
+
+    grau_de_regressao = float(request.POST.get("npolinomio"))
+    regressaoC = np.polyfit(t,dadosC,grau_de_regressao)
+    C = np.poly1d(regressaoC)
+    F = C/CT0
+    E = F.deriv()
+
+    tm= (np.poly1d([1,0])*E).integ()
+    tm= tm(t[-1])-tm(t[0]) #min
+
+    variancia = (np.poly1d([1,0])*E - tm*E)**2
+    variancia = variancia.integ()
+    variancia = variancia(t[-1])-variancia(t[0]) #min²
+
+    inclinacao = ((np.poly1d([1,0])-tm)**3*E).integ()
+    inclinacao = 1/variancia**(3/2)*(inclinacao(t[-1])-inclinacao(t[0])) #min³
+
+    tODE = np.linspace(0,t[-1],100)
+    C = list(C(tODE))
+    E = list(E(tODE))
+    F = list(F(tODE))
+
+    return {"t":np.round(tODE,1), "C":C, "E":E, "F":F, "tm":[round(tm,2)],
+     "variancia":["{:.2e}".format(variancia)],"inclinacao":["{:.2e}".format(inclinacao,2)],
+     "Xideal":[round(X,4)], "Xmodelo":[round(Xmodelo,4)], "alfa":[round(alfa,2)],
+     "beta":[round(beta,2)], "tauS":[round(tauS,2)]}
+######## DTR2 #########/
+
+######## DTR3 #########
+
+# MODELO T-E-S (1 PARAMETRO AJUSTÁVEL) (n RETORES TANQUE EM SÉRIE)
+def dtr3(request):
+    k = float(request.POST.get("k")) #dm³/(mol min) 
+    CA0 = float(request.POST.get("CA0")) #mol/dm³
+    V = float(request.POST.get("V")) #dm³
+    v0 = float(request.POST.get("v0")) #dm³/min
+    N0 = float(request.POST.get("N0")) #g
+
+    # CSTR pulso
+    t = np.array([0, 0.2, 0.4, 0.6, 0.8, 1, 1.2, 1.4, 1.6, 1.8, 2, 2.2, 2.4, 2.6, 2.8])
+    dadosC = np.array([0, 78, 156, 280, 313, 250, 188, 135, 94, 70, 47, 30, 19, 10, 0]) #mg/dm³
+
+    regressaoC = np.polyfit(t,dadosC,3)
+    C = np.poly1d(regressaoC)
+    E = C/(C.integ()(t[-1])-C.integ()(t[0]))
+
+    tau = (np.poly1d([1,0])*E).integ()
+    tau = tau(t[-1])-tau(t[0]) #min
+    variancia = ((np.poly1d([1,0])-tau)**2*E).integ()
+    variancia = variancia(t[-1])-variancia(t[0]) #min²
+    inclinacao = ((np.poly1d([1,0])-tau)**3)*E.integ()
+    inclinacao = 1/variancia**(3/2)*(inclinacao(t[-1]) - inclinacao(t[0])) #min³
+
+    n = (tau**2/variancia)
+    taui = tau/n
+    #E = t**(n-1)/factorial(int(n)-1)/taui**n*np.exp(-t/taui)
+    def tau(t,n,taui):
+        return t**(n)/factorial(round(n)-1)/taui**n*np.exp(-t/taui)
+    tau = quad(tau, 0, np.inf, args=(n,taui))[0]
+
+    def variancia(t,n,taui):
+        return t**(n-1)/factorial(round(n)-1)/taui**n*np.exp(-t/taui)*(t-tau)**2
+    var = quad(variancia, 0, np.inf, args=(n,taui))[0]
+
+    n = tau**2/var
+    #Conversão TES 1ª ordem
+    XTES = 1 - 1/(1+tau*k)**n
+    #valor de n só é arredondado para cima na ultima iteração e para o calculo do fatorial
+    n = int(n)+1
+
+    grau_de_regressao = 5
+    regressaoC = np.polyfit(t,dadosC,grau_de_regressao)
+    C = np.poly1d(regressaoC)
+    E = C/(C.integ()(t[-1])-C.integ()(t[0]))
+    F = E.integ()
+
+    tm= (np.poly1d([1,0])*E).integ()
+    tm= tm(t[-1])-tm(t[0]) #min
+
+    variancia = ((np.poly1d([1,0]) - tm)**2*E).integ()
+    variancia = variancia(t[-1])-variancia(t[0]) #min²
+    inclinacao = ((np.poly1d([1,0])-tm)**3*E).integ()
+    inclinacao = 1/variancia**(3/2)*(inclinacao(t[-1])-inclinacao(t[0])) #min³
+
+    tODE = np.linspace(0,t[-1],100)
+    C = list(C(tODE))
+    E = list(E(tODE))
+    F = list(F(tODE))
+
+    return {"t":np.round(tODE,1), "C":C, "E":E, "F":F, "tm":[round(tm,2)],
+     "variancia":["{:.2e}".format(variancia)],"inclinacao":["{:.2e}".format(inclinacao,2)],
+     "XTES":[round(XTES,4)], "n":[n]}
+
+######## DTR3 #########/
+
+######## DTR4 #########
+#Tanques interconectados - 18.8.2
+def dtr4(request):
+    V = 1000 #dm³
+    v0 = 25 #dm³/min
+    tau = V/v0
+    k = 0.03 #1/min
+
+    t =  np.array([0, 20, 40, 60, 80, 120, 160, 200, 240, 280, 320]) #min
+    dadosC =  np.array([2000, 1050, 520, 280, 160, 61, 29, 16.4, 10, 6.4, 4]) #mg/dm³
+    teta=t/tau
+    CC0=dadosC/dadosC[0]
+
+    regressaoC = np.polyfit(teta,dadosC,6)
+    regressaoC = np.poly1d(regressaoC)
+    CT0 = dadosC[0]
+
+    alfa = (regressaoC.integ()(teta[-1])-regressaoC.integ()(teta[0]))/CT0
+    coeficientes = np.polyfit([teta[-3],teta[-2]],[CC0[-3],CC0[-2]],1)
+
+    m1 = coeficientes[0]
+    interceptacao1 = coeficientes[1]
+    coeficientes = np.polyfit([teta[0],teta[1]],[CC0[0],CC0[1]],1)
+    m2 = coeficientes[0]
+    interceptacao2 = coeficientes[1]
+    beta = interceptacao2*alfa*(m1-m2)+alfa*m2+1
+    XCSTR = tau*k/(1+tau*k)
+    XPFR = 1-np.exp(-tau*k)
+    numeradorX = (beta + alfa * tau * k) * (beta + (1 - alfa) * tau * k) - beta**2
+    denominadorX = ((1 + beta + alfa * tau * k) * (beta + (1 - alfa) * tau * k) - beta**2)
+    X = numeradorX / denominadorX
+
+    grau_de_regressao = 6
+    regressaoC = np.polyfit(t,dadosC,grau_de_regressao)
+    C = np.poly1d(regressaoC)
+    E = C/(C.integ()(t[-1])-C.integ()(t[0]))
+    F = E.integ()
+
+    tm= (np.poly1d([1,0])*E).integ()
+    tm= tm(t[-1])-tm(t[0]) #min
+
+    variancia = ((np.poly1d([1,0]) - tm)**2*E).integ()
+    variancia = variancia(t[-1])-variancia(t[0]) #min²
+    inclinacao = ((np.poly1d([1,0])-tm)**3*E).integ()
+    inclinacao = 1/variancia**(3/2)*(inclinacao(t[-1])-inclinacao(t[0])) #min³
+
+    tODE = np.linspace(0,t[-1],100)
+    C = list(C(tODE))
+    E = list(E(tODE))
+    F = list(F(tODE))
+
+    return {"t":np.round(tODE,1), "C":C, "E":E, "F":F, "tm":[round(tm,2)],
+     "variancia":["{:.2e}".format(variancia)],"inclinacao":["{:.2e}".format(inclinacao,2)],
+     "X":[round(X,4)], "X(CSTR)":[round(XCSTR,4)], "X(PFR)":[round(XPFR,4)],
+     "m1":[round(m1,4)], "m2":[round(m2,4)], "Intersecao": [round(interceptacao2,4)],
+     "alfa":[round(alfa,2)], "beta":[round(beta,2)]}
+
+######## DTR4 #########/

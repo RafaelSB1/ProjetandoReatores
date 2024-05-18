@@ -1,0 +1,373 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Conversor de Unidades{% endblock title %}
+
+{% block exemplo %}Conversor de Unidades{% endblock exemplo %}
+
+{% block content %}
+<div class="container mt-md-5 mb-3">
+    <div class="row justify-content-center">
+        <div class="card col-xl-6 col-md-10">
+          <div class="card-body">
+            <h5 class="card-title text-center">Conversor de Unidades</h5>
+            <div class="input-group text-center my-3 py-2">
+              <label for="variableType" class="input-group-text">Tipo de Variável</label>
+              <select class="form-select shadow-none px-4" id="variableType">
+                <!-- Opções para tipos de variáveis -->
+                <option value="temperatura">Temperatura</option>
+                <option value="volume">Volume</option>
+                <option value="tempo">Tempo</option>
+                <option value="calor_especifico">Calor específico</option>
+                <option value="energia">Energia por Mol</option>
+                <option value="concentracao">Concentração</option>
+                <option value="vazao_molar">Vazão Molar</option>
+                <option value="vazao_volumetrica">Vazão Volumétrica</option>
+              </select>
+            </div>
+            <form class="row justify-content-center align-items-center text-center my-3 p-md-2">
+              <div class="form-group col-lg-5 col-9">
+                <label for="inputValue">Valor de Entrada</label>
+                <input type="number" step="any" class="border rounded-top p-2 w-100 text-center" id="inputValue" placeholder="Insira o valor" autocomplete="off">
+                <select class="form-select shadow-none rounded-top-0" id="inputUnit">
+                  <!-- Opções para unidades de entrada -->
+                  <option value="Celsius (°C)">Celsius (°C)</option>
+                  <option value="Fahrenheit (°F)">Fahrenheit (°F)</option>
+                  <option value="Kelvin (K)">Kelvin (K)</option>
+                  <option value="Rankine (R)">Rankine (R)</option>
+                </select>
+              </div>
+              <div class="d-none d-md-block col-lg-2 fs-4 fw-semibold"> = </div>
+              <div class="form-group col-lg-5 py-lg-0 py-3 col-9">
+                <div>
+                    <label for="outputResult">Resultado</label>
+                    <div class="border rounded-top p-2" id="outputResult">-</div>
+                </div>
+                <select class="form-select shadow-none rounded-top-0" id="outputUnit">
+                  <!-- Opções para unidades de saída -->
+                  <option value="Celsius (°C)">Celsius (°C)</option>
+                  <option value="Fahrenheit (°F)">Fahrenheit (°F)</option>
+                  <option value="Kelvin (K)">Kelvin (K)</option>
+                  <option value="Rankine (R)">Rankine (R)</option>
+                </select>
+              </div>
+            </form>   
+            <div class="text-center mt-4">
+                <button class="btn btn-light border-black shadow-sm" id="botaoSalvarUnidade">Salvar</button>  
+                <div class="alert-danger my-3 w-50 mx-auto" id="erroSalvar"></div>
+            </div>   
+                
+          </div>
+        </div>
+    
+    </div>
+  </div>
+{% endblock content %}
+
+{% block scripts %} 
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+
+<script>
+    document.getElementById('inputValue').addEventListener('input', converter);
+    document.getElementById('inputUnit').addEventListener('input', converter);
+    document.getElementById('outputUnit').addEventListener('input', converter);
+    document.getElementById('variableType').addEventListener('change',atualizarUnidades);
+    const unidadeEntrada = document.getElementById('inputUnit');
+    const unidadeSaida = document.getElementById('outputUnit');
+
+    function atualizarUnidades() {
+        const tipoVariavel = document.getElementById('variableType').value;
+        // Limpar opções existentes
+        unidadeEntrada.innerHTML = '';
+        unidadeSaida.innerHTML = '';
+
+        // Adicionar opções com base no tipo de variável selecionado
+        if (tipoVariavel === 'temperatura') {
+            adicionarOpcoes(unidadeEntrada, ['Celsius (°C)', 'Fahrenheit (°F)', 'Kelvin (K)', 'Rankine (R)']);
+            adicionarOpcoes(unidadeSaida, ['Celsius (°C)', 'Fahrenheit (°F)', 'Kelvin (K)', 'Rankine (R)']);
+        } if (tipoVariavel === 'tempo') {
+            adicionarOpcoes(unidadeEntrada, ['s', 'min', 'h', 'dia']);
+            adicionarOpcoes(unidadeSaida, ['s', 'min', 'h', 'dia']);
+        } if (tipoVariavel === 'volume') {
+            adicionarOpcoes(unidadeEntrada, ['m³', 'dm³', 'ft³']);
+            adicionarOpcoes(unidadeSaida, ['m³', 'dm³', 'ft³']);
+        } if (tipoVariavel === 'energia') {
+            adicionarOpcoes(unidadeEntrada, ['J/mol', 'cal/mol', 'Btu/lb-mol']);
+            adicionarOpcoes(unidadeSaida, ['J/mol', 'cal/mol', 'Btu/lb-mol']);
+        } if (tipoVariavel === 'calor_especifico') {
+            adicionarOpcoes(unidadeEntrada, ['J/kg·°C','kcal/kg·°C','Btu/lb·°F']);
+            adicionarOpcoes(unidadeSaida, ['J/kg·°C','kcal/kg·°C','Btu/lb·°F']);
+        } if (tipoVariavel === 'concentracao') {
+            adicionarOpcoes(unidadeEntrada, ['mol/L', 'mol/m³', 'lb-mol/ft³']);
+            adicionarOpcoes(unidadeSaida, ['mol/L', 'mol/m³', 'lb-mol/ft³']);
+        } if (tipoVariavel === 'vazao_molar') {
+            adicionarOpcoes(unidadeEntrada, ['mol/s', 'mol/min', 'kmol/h', 'lb-mol/s', 'lb-mol/min']);
+            adicionarOpcoes(unidadeSaida, ['mol/s', 'mol/min', 'kmol/h', 'lb-mol/s', 'lb-mol/min']);
+        } if (tipoVariavel === 'vazao_volumetrica') {
+            adicionarOpcoes(unidadeEntrada, ['m³/min', 'm³/h', 'L/s', 'L/min', 'ft³/s', 'ft³/min']);
+            adicionarOpcoes(unidadeSaida, ['m³/min', 'm³/h', 'L/s', 'L/min', 'ft³/s', 'ft³/min']);
+        }
+        converter()
+
+    }
+  
+    function adicionarOpcoes(selectElement, opcoes) {
+            opcoes.forEach(opcao => {
+                const option = document.createElement('option');
+                option.value = opcao;
+                option.text = opcao;
+                selectElement.appendChild(option);
+            });
+    }
+
+    function converter() {
+        // Lógica de conversão aqui
+        // Obtenha os valores dos elementos e faça a conversão
+        // Atualize o conteúdo do elemento com id "outputResult"
+        const inputValue = parseFloat(document.getElementById('inputValue').value);
+        const inputUnit = document.getElementById('inputUnit').value;
+        const outputUnit = document.getElementById('outputUnit').value;
+        const tipoVariavel = document.getElementById('variableType').value;
+        let resultado;
+
+        if (tipoVariavel==='temperatura') {
+            resultado = converterTemperatura(inputValue,inputUnit,outputUnit);
+            resultado = parseFloat(resultado.toFixed(2));
+        } if (tipoVariavel === 'tempo') {
+            resultado = converterTempo(inputValue,inputUnit,outputUnit);
+            resultado = parseFloat(resultado.toFixed(4));
+        } if (tipoVariavel === 'volume') {
+            resultado = converterVolume(inputValue,inputUnit,outputUnit);
+            resultado = parseFloat(resultado.toFixed(4));
+        } if (tipoVariavel === 'energia') {
+            resultado = converterEnergia(inputValue,inputUnit,outputUnit);
+            resultado = parseFloat(resultado.toFixed(4));
+        } if (tipoVariavel === 'calor_especifico') {
+            resultado = converterCalorEspecifico(inputValue,inputUnit,outputUnit);
+            resultado = parseFloat(resultado.toFixed(4));
+        } if (tipoVariavel === 'concentracao') {
+            resultado = converterConcentração(inputValue,inputUnit,outputUnit);
+            resultado = parseFloat(resultado.toFixed(4));
+        } if (tipoVariavel === 'vazao_molar') {
+            resultado = converterVazaoMolar(inputValue,inputUnit,outputUnit);
+            resultado = parseFloat(resultado.toFixed(4));
+        } if (tipoVariavel === 'vazao_volumetrica') {
+            resultado = converterVazaoVolumetrica(inputValue,inputUnit,outputUnit);
+            resultado = parseFloat(resultado.toFixed(4));
+        } if (isNaN(resultado)) {resultado = "-"}
+
+        document.getElementById('outputResult').innerText = `${resultado}`.replace(/\./g, ',');
+    }
+
+    function converterTemperatura(valor, de, para) {
+        if (de === "Celsius (°C)") {
+            valor=valor;
+        } else if (de === "Fahrenheit (°F)") {
+            valor = (valor-32)*5/9;
+        } else if (de === "Kelvin (K)") {
+            valor = valor-273.15;
+        } else if (de === "Rankine (R)") {
+            valor = (valor-491.67)*5/9;
+        } if (para === "Celsius (°C)") {
+            return valor;
+        } else if (para === "Fahrenheit (°F)") {
+            return (valor*9/5)+32;
+        } else if (para === "Kelvin (K)") {
+            return valor+273.15;
+        } else if (para === "Rankine (R)") {
+            return (valor*5/9)+491.67;
+        } else {
+            // Se não há conversão definida
+            return "valor";
+        }
+    }
+    function converterTempo(valor, de, para) {
+        //Converter todos para segundo
+        if (de === "s") {
+            valor=valor;
+        } else if (de === "min") {
+            valor = valor*60;
+        } else if (de === "h") {
+            valor = valor*3600;
+        } else if (de === "dia") {
+            valor = valor*3600*24;
+        } if (para === "s") {
+            return valor;
+        } else if (para === "min") {
+            return valor/60;
+        } else if (para === "h") {
+            return valor/3600;
+        } else if (para === "dia") {
+            return valor/3600/24;
+        } else {
+            // Se não há conversão definida
+            return valor;
+        }
+    }
+    function converterVolume(valor, de, para) {
+        //Converter todos para m³
+        if (de === "m³") {
+            valor=valor;
+        } else if (de === "dm³") {
+            valor = valor/1000;
+        } else if (de === "ft³") {
+            valor = valor/35.3147;
+        } if (para === "m³") {
+            return valor;
+        } else if (para === "dm³") {
+            return valor*1000;
+        } else if (para === "ft³") {
+            return valor*35.3147;
+        } else {
+            // Se não há conversão definida
+            return valor;
+        }
+    }
+    function converterEnergia(valor, de, para) {
+        //Converter todos para J/mol
+        if (de === "J/mol") {
+            valor=valor;
+        } else if (de === "cal/mol") {
+            valor = valor*4.1868;
+        } else if (de === "Btu/lb-mol") {
+            valor = valor*2.3259979112539;
+        } if (para === "J/mol") {
+            return valor;
+        } else if (para === "cal/mol") {
+            return valor/4.1868;
+        } else if (para === "Btu/lb-mol") {
+            return valor/2.3259979112539;
+        } else {
+            // Se não há conversão definida
+            return valor;
+        }
+    }
+    function converterCalorEspecifico(valor, de, para) {
+        //Converter todos para J/kg·°C
+        if (de === "J/kg·°C") {
+            valor=valor;
+        } else if (de === "kcal/kg·°C") {
+            valor = valor*4186.8;
+        } else if (de === "Btu/lb·°F") {
+            valor = valor*4186.8;
+        } if (para === "J/kg·°C") {
+            return valor;
+        } else if (para === "kcal/kg·°C") {
+            return valor/4186.8;
+        } else if (para === "Btu/lb·°F") {
+            return valor/4186.8;
+        } else {
+            // Se não há conversão definida
+            return valor;
+        }
+    }
+    function converterConcentração(valor, de, para) {
+        //Converter todos para mol/L
+        if (de === "mol/L") {
+            valor=valor;
+        } else if (de === "mol/m³") {
+            valor = valor*0.001;
+        } else if (de === "lb-mol/ft³") {
+            valor = valor*16.018;
+        } if (para === "mol/L") {
+            return valor;
+        } else if (para === "mol/m³") {
+            return valor/0.001;
+        } else if (para === "lb-mol/ft³") {
+            return valor/16.018;
+        } else {
+            // Se não há conversão definida
+            return valor;
+        }
+    }
+    function converterVazaoMolar(valor, de, para) {
+        //Converter todos para mol/s
+        if (de === "mol/s") {
+            valor=valor;
+        } else if (de === "mol/min") {
+            valor = valor/60;
+        } else if (de === "kmol/h") {
+            valor = valor*1000/3600;
+        } else if (de === "lb-mol/s") {
+            valor = valor*453.60;
+        } else if (de === "lb-mol/min") {
+            valor = valor*453.60/60;
+        } if (para === "mol/s") {
+            return valor;
+        } else if (para === "mol/min") {
+            return valor*60;
+        } else if (para === "kmol/h") {
+            return valor/(1000/3600);
+        } else if (para === "lb-mol/s") {
+            return valor/453.60;
+        } else if (para === "lb-mol/min") {
+            return valor/(453.60/60);
+        } else {
+            // Se não há conversão definida
+            return valor;
+        }
+    }
+    function converterVazaoVolumetrica(valor, de, para) {
+        //Converter todos para m³/min
+        if (de === "m³/min") {
+            valor=valor;
+        } else if (de === "m³/h") {
+            valor = valor/60;
+        } else if (de === "L/s") {
+            valor = valor/1000*60;
+        } else if (de === "L/min") {
+            valor = valor/1000;
+        } else if (de === "ft³/s") {
+            valor = valor/35.315*60;
+        } else if (de === "ft³/min") {
+            valor = valor/35,315;
+        } if (para === "m³/min") {
+            return valor;
+        } else if (para === "m³/h") {
+            return valor*60;
+        } else if (para === "L/s") {
+            return valor*1000/60;
+        } else if (para === "L/min") {
+            return valor*1000;
+        } else if (para === "ft³/s") {
+            return valor*35.315/60;
+        } else if (para === "ft³/min") {
+            return valor*35,315;
+        } else {
+            // Se não há conversão definida
+            return valor;
+        }
+    }
+
+    let dadosSalvos = ""
+    document.getElementById('botaoSalvarUnidade').addEventListener('click',salvarUnidade);
+    function salvarUnidade() {
+        const inputValue = parseFloat(document.getElementById('inputValue').value);
+        if (isNaN(inputValue)){
+            document.getElementById('erroSalvar').classList.add('alert');
+            document.getElementById('erroSalvar').innerHTML = "Erro ao salvar";
+        } else {
+            document.getElementById('erroSalvar').classList.remove('alert');
+            document.getElementById('erroSalvar').innerHTML = "";
+            const outputResult = document.getElementById('outputResult').innerText;
+            const blocoUnidadesSalvas = document.getElementById('blocoUnidadesSalvas');
+            let unidadeSalva = `
+            <div class="d-inline">
+                ${inputValue} ${unidadeEntrada.value}  <i class="bi bi-arrow-right px-1"></i>  ${outputResult} ${unidadeSaida.value}
+            </div>
+            <button onclick="this.parentNode.remove()" class="border-0 bg-white link-danger link-opacity-100-hover">
+                <i class="bi bi-x-circle-fill" style="font-size: 12px"></i>
+            </button>`;
+            const novoBloco = document.createElement('div');
+            novoBloco.innerHTML = unidadeSalva; 
+            blocoUnidadesSalvas.appendChild(novoBloco);
+            dadosSalvos = blocoUnidadesSalvas.innerHTML;
+            localStorage.setItem('dadosSalvos', dadosSalvos);
+        }
+    }
+    
+    
+</script>
+{% endblock scripts %} 

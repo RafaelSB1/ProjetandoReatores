@@ -1,0 +1,232 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}PBR2{% endblock title %}
+
+{% block exemplo %}PBR2 - Determinação da taxa de reação{% endblock exemplo %}
+
+{% block content %}
+<div class="row border rounded-top p-4" >
+    <p><h5 class="text-center">Hidrogenação de Etileno a Etano</h5></p>
+    <p>Baseado no Exemplo 10.3 da 6ª edição do livro Elementos de Engenharia das Reações Químicas de H. Scott Fogler.</p>
+    <p class="text-center equacao" id="conteudo1"> 
+        $$ H_{2} + C_{2}H_{4} \xrightarrow[]{} C_{2}H_{6}  $$
+    </p>
+    <p>
+        A hidrogenação (H) de etileno (E) para formar etano (EA), ocorre sobre um catalisador de cobalto molibdênio. 
+        Faça uma análise de regressão não linear para determinar qual das seguintes equações de taxa melhor descreve os 
+        dados fornecidos.
+    </p>
+    <div class="d-flex flex-wrap justify-content-center align-items-center pt-3" id="conteudo2">
+        <div>
+        \begin{align}
+            & \text{(a)} \quad -r'_E = \frac{k * P_E * P_H}{(1 + K_{EA} * P_{EA} + K_E * P_E)} \notag\\[2em]
+            & \text{(b)} \quad -r'_E = \frac{k * P_E * P_H}{(1 + K_E * P_E)} \notag\\[2em]
+            & \text{(c)} \quad -r'_E = \frac{k * P_E * P_H}{(1 + K_E * P_E)^2} \notag\\[2em]
+        \end{align}
+        </div>
+        <div class="d-lg-block d-md-none" style="width: 100px;"></div>
+        <div>
+        \begin{align}
+            & \text{(d)} \quad -r'_E = k * P_E^a * P_H^b \notag\\[2em]
+            & \text{(e)} \quad -r'_E = \frac{k * P_E * P_H}{(1 + K_{EA} * P_{EA} + K_E * P_E)^2}  \notag\\[2em]
+            & \text{(f)} \quad -r'_E = \frac{k * P_E * P_H}{(1 + K_A * P_{EA})} \notag\\[2em]
+        \end{align}
+        </div>
+    </div>
+    <div class="d-flex flex-wrap align-items-center justify-content-center py-4">
+        <div>Número de dados experimentais:</div>
+        <input value="9" id="n_dados_experimentais" type="number" class="text-center border rounded focus-ring focus-ring-light py-1 m-3" style="width: 100px;">
+        <button id="botao_gerar_tabela" class="btn btn-light border-black" onclick="gerarTabela()">Gerar Tabela</button>
+    </div>
+</div>
+
+<form  method="post" id="formulario" action="{% url 'e103_pbr_taxa' %}">
+    {% csrf_token %}
+    <div class="row border rounded-bottom"> 
+        <div class="d-flex justify-content-center align-items-center">
+        <div class="table-responsive">
+        <table id="tabela" class="d-block table mx-auto text-center">
+            <thead>
+                <tr>
+                    <th class="px-4"> # </th>
+                    <th> Taxa de reação <br>[mol/(kg<sub>cat</sub> &#8226; s)] </th>
+                    <th> P<sub>E</sub> (atm) </th>
+                    <th> P<sub>H</sub> (atm) </th>
+                    <th> P<sub>EA</sub>  (atm) </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <th>1</th>
+                    <td><input type="number" class="border rounded focus-ring focus-ring-light py-1" style="width: 100px;"></td>
+                    <td><input type="number" class="border rounded focus-ring focus-ring-light py-1" style="width: 100px;"></td>
+                    <td><input type="number" class="border rounded focus-ring focus-ring-light py-1" style="width: 100px;"></td>
+                    <td><input type="number" class="border rounded focus-ring focus-ring-light py-1" style="width: 100px;"></td>
+                </tr>
+            </tbody>
+        </table>  
+        </div>
+        </div>
+
+        <div class="col-3"></div>
+        <div class="col-md pt-3 pb-md-3">
+            {% for field in form %}
+            <div class="d-flex flex-wrap g-3 align-items-center py-1">
+                <div class="col-2 text-center">
+                    <div class="col-form-label">{{ field.name }}</div>
+                </div>
+                <div class="col-6">
+                    {{ field }}
+                </div>
+                <div class="col-auto px-3">
+                    <span class="form-text">{{ field.help_text }}</span> 
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="col-2"></div>
+    </div>
+    <section class="mx-md-3 d-flex flex-wrap">
+        <div class="text-center py-2 col-12 col-md-3">
+            <button type="button" class="btn border border-white p-1" id="lista-de-simbolos"
+                    data-bs-toggle="popover"
+                    data-bs-html="true"
+                    data-bs-placement="bottom"
+                    data-bs-content=
+                    "{% for field in form %}
+                        {% if field.name|first == 'U' or field.name|first == 'Δ' %}
+                            <div class='fs-6 py-1'><b class='fw-semibold '>{{ field.name|slice:':2' }}<sub>{{ field.name|slice:'2:' }}</sub>:</b> {{ field.label }}</div>
+                        {% elif field.name != 'taxa' %}
+                            <div class='fs-6 py-1'><b class='fw-semibold '>{{ field.name|first }}<sub>{{ field.name|slice:'1:' }}</sub>:</b> {{ field.label }}</div>
+                        {% endif %}
+                    {% endfor %}">
+                Lista de Símbolos <i class="bi bi-question-square"></i>
+            </button>
+        </div>
+        <div class="col-12 col-md-6 text-center py-3 justify-content-center">
+            <input class="btn btn-light border-black" type="submit" value="Enviar" id="botao">
+        </div>
+    </section>
+    <div class="d-flex justify-content-center"><div class="flex-shrink-0" id="errors-container"></div></div>
+</form>
+
+<section class="d-flex flex-wrap justify-content-center pt-5" id="cardResultados"></section>
+
+{% endblock content %}
+
+{% block scripts %}
+
+<script type="module">
+    import { criarEstrutura } from "{% static 'js/scripts.js' %}";
+    document.getElementById('botao').addEventListener('click', function(event) {
+    event.preventDefault();
+    const formData = new FormData(document.getElementById('formulario')); // Obtém os dados do formulário
+    fetch("{% url 'e103_pbr_taxa' %}", {
+        method: "POST",
+        body: formData,
+    })
+    .then(response => response.json()) // Supondo que a resposta seja JSON
+    .then(data => {
+        if (!data.sucesso) {
+        // Se houver erros, exiba-os
+        const errorsContainer = document.getElementById("errors-container");
+        errorsContainer.innerHTML = "";  // Limpe os erros anteriores, se houver
+
+        // Itere sobre os erros e exiba-os
+        for (const field in data.erros) {
+            const errorMessage = data.erros[field].join(", ");
+            const errorElement = document.createElement("div");
+            errorElement.setAttribute("class","p-1");
+            errorsContainer.setAttribute("class","alert alert-danger");
+            errorElement.innerHTML = `<strong>${listaDeSubscritos[field]} :</strong> ${errorMessage}`;
+            errorsContainer.appendChild(errorElement);
+        }
+    } else {
+        document.getElementById("errors-container").innerHTML="";
+        document.getElementById("errors-container").classList.remove("alert");
+        
+        criarCard(data);  
+    }
+    }) 
+});
+
+</script>
+<script>
+    gerarTabela();
+    let taxa = [1.04,3.13,5.21,3.82,4.19,2.391,3.867,2.199,0.75];
+    let PE = [1,1,1,3,5,0.5,0.5,0.5,0.5];
+    let PH = [1,3,5,3,3,3,5,3,1];
+    let PEA = [1,1,1,1,1,1,0.5,3,5];
+    for (let i = 1; i<=9; i++) {
+        document.getElementById(`taxa${i}`).value = taxa[i-1];
+        document.getElementById(`pe${i}`).value = PE[i-1];
+        document.getElementById(`ph${i}`).value = PH[i-1];
+        document.getElementById(`pea${i}`).value = PEA[i-1];
+    };
+    function coletarDadosTabela() {
+        var numLinhas = document.getElementById('n_dados_experimentais').value;
+        taxa = [];
+        PE = [];
+        PH = [];
+        PEA = [];
+        for (let i = 1; i <= numLinhas; i++) {
+            taxa.push(document.getElementById(`taxa${i}`).value);
+            PE.push(document.getElementById(`pe${i}`).value);
+            PH.push(document.getElementById(`ph${i}`).value);
+            PEA.push(document.getElementById(`pea${i}`).value);
+        }
+        document.getElementById('id_taxa').value = taxa
+        document.getElementById('id_PE').value = PE
+        document.getElementById('id_PH').value = PH
+        document.getElementById('id_PEA').value = PEA
+    }
+    function gerarTabela() {
+        var numLinhas = document.getElementById('n_dados_experimentais').value;
+        var tabelaHTML = '';
+        // Cabeçalho da tabela
+        tabelaHTML += '<thead><tr>';
+        tabelaHTML += `<th class="px-4"> # </th>
+                        <th> Taxa de reação <br>[mol/(kg<sub>cat</sub> &#8226; s)] </th>
+                        <th> P<sub>E</sub> (atm) </th>
+                        <th> P<sub>H</sub> (atm) </th>
+                        <th> P<sub>EA</sub>  (atm) </th>`;
+        tabelaHTML += '</tr></thead><tbody>';
+        // Adiciona linhas com base no número fornecido
+        for (var i = 1; i <= numLinhas; i++) {
+            tabelaHTML += `<tr><th> ${i} </th>
+                        <td><input oninput="coletarDadosTabela()" id="taxa${i}" type="number" class="border rounded focus-ring focus-ring-light py-1 text-center" style="width: 100px;"></td>
+                        <td><input oninput="coletarDadosTabela()" id="pe${i}" type="number" class="border rounded focus-ring focus-ring-light py-1 text-center" style="width: 100px;"></td>
+                        <td><input oninput="coletarDadosTabela()" id="ph${i}" type="number" class="border rounded focus-ring focus-ring-light py-1 text-center" style="width: 100px;"></td>
+                        <td><input oninput="coletarDadosTabela()" id="pea${i}" type="number" class="border rounded focus-ring focus-ring-light py-1 text-center" style="width: 100px;"></td></tr>`;
+        }
+        tabelaHTML += '</tbody>';
+        document.getElementById('tabela').innerHTML = tabelaHTML;
+    }
+    function criarCard(data) {
+        let novaEstrutura = ""
+        const letras = ["A","B","C","D","E","F"]
+        const nomePropriedade = [['k','K<sub>E</sub>','K<sub>EA</sub>'],['k','K<sub>E</sub>'],['k','K<sub>E</sub>'],['k','a','b'],['k','K<sub>E</sub>','K<sub>EA</sub>'],['k','K<sub>A</sub>']]
+        for (let n = 0;  n < data['parametros'].length; n++) {
+            novaEstrutura += `
+            <div class="card text-center mx-3 my-1">
+            <h5 class="card-header px-5">Modelo ${letras[n]}</h5>
+            <div class="card-body m-2">`;
+            for (let i = 0; i < data['parametros'][n].length; i++) {
+                let nome = nomePropriedade[n][i];
+                let valor = data['parametros'][n][i];
+                let erro = data['erro'][n][i];
+                novaEstrutura += `<h6>${nome} = ${valor.toFixed(7)} \&#177; ${erro.toFixed(7)}</h6>`; 
+            }; 
+            novaEstrutura+=`
+                <h6> R² = ${data['R_quadrado'][n].toFixed(7)}</h6>
+                </div>
+                </div>  
+            `;
+        };
+        //document.getElementById("cardResultados").innerHTML = resultadosArray.join("");
+        document.getElementById("cardResultados").innerHTML = novaEstrutura
+    }
+</script>
+
+{% endblock scripts %}

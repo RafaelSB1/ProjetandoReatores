@@ -1,276 +1,161 @@
 {% extends 'base.html' %}
-{% load crispy_forms_tags %}
-{% load mathjax %}
+{% load static %}
 
-{% block title %}Exemplo 12.5{% endblock title %}
+{% block title %}PFR2{% endblock title %}
 
-{% block exemplo %}Exemplo 12.5{% endblock exemplo %}
+{% block exemplo %}PFR2 - Reações Paralelas{% endblock exemplo %}
 
 {% block content %}
-<!-- Configuração inline do Mathjax -->
-<script type="text/x-mathjax-config">
-    MathJax.Hub.Config({
-        tex2jax: {
-            inlineMath: [['$', '$']],
-            displayMath: [['$$', '$$']],
-            processEscapes: true,
-            processEnvironments: true,
-            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
-            TeX: {
-                equationNumbers: { autoNumber: 'AMS' },
-                extensions: ['AMSmath.js', 'AMSsymbols.js', 'autobold.js']
-            }
-        }
-    });
-    function mostrarElemento(id) {
-        document.getElementById(id).style.display = 'block';
-    }
-    MathJax.Hub.Queue(function() {
-        // Coloque aqui o código para exibir ou fazer algo com o conteúdo
-        mostrarElemento('conteudo1');
-        mostrarElemento('conteudo2');
-        mostrarElemento('conteudo3');
-    });
-</script>
 
 <div class="row border rounded-top p-4" >
-    <p><h5 class="text-center">Exemplo 12.5: Reações Paralelas em um PFR com Efeitos Térmicos</h5></p>
+    <p><h5 class="text-center">Reações Paralelas em um PFR com Efeitos Térmicos</h5></p>
+    <p>Baseado no Exemplo 12.5 da 6ª edição do livro Elementos de Engenharia das Reações Químicas de H. Scott Fogler.</p>
     <p>As seguintes reações em fase gasosa ocorrem em um PFR:</p>
-    <p class="text-center" id="conteudo1" style="display: none;"><span class="px-1">Reação 1:</span>  $A \stackrel{k_1}{\longrightarrow} \mathrm{B} \quad-r_{1 \mathrm{A}}=k_{1 \mathrm{A}} C_{\mathrm{A}}$</p>
-    <p class="text-center" id="conteudo2" style="display: none;"><span class="px-1">Reação 2:</span>  $2 \mathrm{~A} \stackrel{k_2}{\longrightarrow} \mathrm{C} \quad-r_{2 \mathrm{A}}=k_{2 \mathrm{A}} C_{\mathrm{A}}^2$</p>
-    <p>O reagente A puro é alimentado a uma taxa de <b>100 mol/s</b>, a uma temperatura de <b>150°C</b> e a uma concentração de <b>0,1 mol/dm³</b>. Despreze a queda de pressão e determine os perfis de temperaturas e de vazões ao longo do reator.</p>
+    <p class="text-center" id="conteudo1" ><span class="px-1">Reação 1:</span>  $A \stackrel{k_1}{\longrightarrow} \mathrm{B} \quad-r_{1 \mathrm{A}}=k_{1 \mathrm{A}} C_{\mathrm{A}}$</p>
+    <p class="text-center" id="conteudo2" ><span class="px-1">Reação 2:</span>  $2 \mathrm{~A} \stackrel{k_2}{\longrightarrow} \mathrm{C} \quad-r_{2 \mathrm{A}}=k_{2 \mathrm{A}} C_{\mathrm{A}}^2$</p>
+    <p>O reagente A puro é alimentado a uma taxa de <b>100 mol/s</b>, a uma temperatura de <b>150 °C</b> e a uma concentração de <b>0,1 mol/dm³</b>. Despreze a queda de pressão e determine os perfis de temperaturas e de vazões ao longo do reator.</p>
     <p>Informações adicionais:</p>
-    <div id="conteudo3" style="display: none;">
-    \begin{aligned}
-    & \Delta H_{\mathrm{Rx} 1 \mathrm{~A}}=-20.000 \mathrm{~J} /(\text { mol de A reagido na reação } 1) \\
-    & \Delta \mathrm{H}_{\mathrm{Rx} 2 \mathrm{~A}}=-60.000 \mathrm{~J} /(\mathrm{mol} \text { de A reagido na reação } 2) \\
-    & C_{\mathrm{P}_{\mathrm{A}}}=90 \mathrm{~J} / \mathrm{mol} \cdot{ }^{\circ} \mathrm{C}     \quad k_{1 \mathrm{~A}}=10 \exp \left[\frac{E_1}{R}\left(\frac{1}{300}-\frac{1}{T}\right)\right] \mathrm{s}^{-1} \\
-    & C_{\mathrm{P}_{\mathrm{B}}}=90 \mathrm{~J} / \mathrm{mol} \cdot{ }^{\circ} \mathrm{C}     \quad \mathrm{E}_1 / \mathrm{R}=4.000 \mathrm{~K} \\
-    & C_{\mathrm{P}_{\mathrm{C}}}=180 \mathrm{~J} / \mathrm{mol} \cdot{ }^{\circ} \mathrm{C}    \quad k_{2 \mathrm{~A}}=0,09 \exp \left[\frac{E_2}{\mathrm{R}}\left(\frac{1}{300}-\frac{1}{\mathrm{~T}}\right)\right] \frac{\mathrm{dm}^3}{\mathrm{~mol} \cdot \mathrm{s}} \\
-    & U a=4.000 \mathrm{~J} / \mathrm{m}^3 \cdot \mathrm{s} \cdot{ }^{\circ} \mathrm{C}     \quad E_2 / \mathrm{R}=9.000 \mathrm{~K} \\
-    & T_a=100^{\circ} \mathrm{C}(\text { Constante }) \\
-    \end{aligned}
+    <div class="d-flex flex-wrap justify-content-center" id="conteudo3">
+        <div class="muito_grande">
+        \begin{gather}
+        & \quad \Delta H_{\mathrm{Rx} 1 \mathrm{~A}}=-20.000 \mathrm{~J} /(\text { mol de A reagido na reação } 1) \quad \notag\\
+        & \quad \Delta \mathrm{H}_{\mathrm{Rx} 2 \mathrm{~A}}=-60.000 \mathrm{~J} /(\mathrm{mol} \text { de A reagido na reação } 2) \quad \notag\\
+        & \quad k_{1 \mathrm{~A}}=10 \exp \left[\frac{E_1}{R}\left(\frac{1}{300}-\frac{1}{T}\right)\right] \mathrm{s}^{-1} \quad   \notag\\
+        & \quad k_{2 \mathrm{~A}}=0,09 \exp \left[\frac{E_2}{\mathrm{R}}\left(\frac{1}{300}-\frac{1}{\mathrm{~T}}\right)\right] \frac{\mathrm{dm}^3}{\mathrm{~mol} \cdot \mathrm{s}} \quad  \notag\\
+        \end{gather}
+        </div>
+        <div>
+        \begin{gather}
+        & \quad E_1 / R=4.000 \mathrm{~K} \quad  \notag\\
+        & \quad E_2 / R=9.000 \mathrm{~K} \quad   \notag\\
+        & \quad T_a=100^{\circ} \mathrm{C}(\text { Constante }) \quad \notag\\
+        & \quad C_{\mathrm{P}_{\mathrm{A}}}=90 \mathrm{~J} / \mathrm{mol} \cdot{ }^{\circ} \mathrm{C} \quad \notag\\
+        & \quad C_{\mathrm{P}_{\mathrm{B}}}=90 \mathrm{~J} / \mathrm{mol} \cdot{ }^{\circ} \mathrm{C} \quad \notag\\
+        & \quad U a=4.000 \mathrm{~J} / \mathrm{m}^3 \cdot \mathrm{s} \cdot{ }^{\circ} \mathrm{C} \quad \notag\\
+        \end{gather}
+        </div>
     </div>
 </div>
 
 <form  method="post" id="formulario" action="{% url 'e125_pfr_multiplas' %}">
     {% csrf_token %}
     
-    <div class="row border rounded-bottom">
-        <div class="col-md p-3">
-            {% for field in form %}  
-            <div class="row g-3 align-items-center py-1">
+    <div class="row border rounded-bottom py-3">
+        <div class="col-md p-md-3">
+            {% for field in form %}
+            {% if field.name == "ΔH1" or field.name == "cpC" %}</div><div class="col-md p-md-3">{% endif %}
+            <div class="row g-3 justify-content-center align-items-center py-1">
                 <div class="col-2 text-center">
-                    <label for="" class="col-form-label">{{ field.name }}</label>
+                    <label name="nome_formulario" for="" class="col-form-label">{{ field.name }}</label>
                 </div>
                 <div class="col-auto">
                     {{ field }}
                 </div>
-                <div class="col-auto">
-                    <span class="form-text">{{ field.help_text }}</span> 
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-             
-        <div class="col-md p-3">
-            {% for field in formreacao %} 
-            {% if field.name == 'cpC' %}</div><div class="col-md p-3">{% endif %}
-            <div class="row g-3 align-items-center py-1">
-                <div class="col-2 text-center">
-                    <label for="" class="col-form-label">{{ field.name }}</label>
-                </div>
-                <div class="col-auto">
-                    {{ field }}
-                </div>
-                <div class="col-auto">
+                <div class="col-2">
                     <span class="form-text">{{ field.help_text }}</span> 
                 </div>
             </div>
             {% endfor %}
         </div>
     </div>
-    <div class="text-center py-3">
-        <input class="btn btn-light border-black" type="submit" value="Enviar" id="submit">
-    </div> 
+    <section class="mx-md-3 d-flex flex-wrap">
+        <div class="text-center py-2 col-12 col-md-3">
+            <button type="button" class="btn border border-white p-1" id="lista-de-simbolos"
+                    data-bs-toggle="popover"
+                    data-bs-html="true"
+                    data-bs-placement="bottom"
+                    data-bs-content=
+                    "{% for field in form %}
+                        {% if field.name|first == 'U' or field.name|first == 'Δ' %}
+                            <div class='fs-6 py-1'><b class='fw-semibold '>{{ field.name|slice:':2' }}<sub>{{ field.name|slice:'2:' }}</sub>:</b> {{ field.label }}</div>
+                        {% elif field.name != 'x' %}
+                            <div class='fs-6 py-1'><b class='fw-semibold '>{{ field.name|first }}<sub>{{ field.name|slice:'1:' }}</sub>:</b> {{ field.label }}</div>
+                        {% endif %}
+                    {% endfor %}">
+                Lista de Símbolos <i class="bi bi-question-square"></i>
+            </button>
+        </div>
+        <div class="col-12 col-md-6 text-center py-3 justify-content-center">
+            <input class="btn btn-light border-black" type="submit" value="Enviar" id="botao">
+        </div>
+    </section>
+    <div class="d-flex justify-content-center"><div class="flex-shrink-0" id="errors-container"></div></div>
 </form>
 
-<div class="pt-5">
-    <div class="border-bottom"><h1 class="h2 text-center">Gráficos</h1></div>
-</div>
-<div class="">
-    <div class="col-md p-4">
-        <div class="chart-container" style="position: relative">
-            <canvas id="graficoT"></canvas>
+<section class="d-flex flex-wrap justify-content-center pt-5" id="cardResultados"></section>
+
+<div class="pt-5" id="titulo_grafico"></div>
+
+<div class="container-fluid">
+    <div class="row py-4 justify-content-center">
+        <div class="col-12 col-md-6 chart-container">
+            <canvas id="grafico_T"></canvas>
+        </div>
+        <div class="col-12 col-md-6 chart-container">
+            <canvas id="grafico_F"></canvas>
         </div>
     </div>
-    <div class="col-md p-4">
-        <div class="chart-container" style="position: relative">
-            <canvas id="graficoF"></canvas>
-        </div>
-    </div>
-</div>
-
-<div class="py-4">
-    <div class="border-bottom"><h1 class="h2 text-center">Tabelas</h1></div>
-</div>
-<div class="">
-<table class="table table-striped table-hover table-sm text-center p-5 border"> 
-    <thead>
-        <tr>
-            <th scope="col">#</th>
-            <th scope="col">Volume (L)</th>
-            <th scope="col">F<sub>A</sub> (mol/s)</th>
-            <th scope="col">F<sub>B</sub> (mol/s)</th>
-            <th scope="col">F<sub>C</sub> (mol/s)</th>
-            <th scope="col">Temperatura (K)</th>
-        </tr>
-    </thead>
-    <tbody class="table-group-divider">
-        {% for i in qs %}
-        {% if i.pk == 0 %}
-        <tr>
-            <th>{{ i.pk }}</th>
-            <td>{{ i.V }}</td>
-            <td>{{ i.FA }}</td>
-            <td>{{ i.FB }}</td>
-            <td>{{ i.FC }}</td>
-            <td>{{ i.T }}</td>
-        </tr>
-        {% else %}
-        <tr>
-            <th>{{ i.pk }}</th>
-            <td>{{ i.V }}</td>
-            <td>{{ i.FA|floatformat:"4" }}</td>
-            <td>{{ i.FB|floatformat:"4"  }}</td>
-            <td>{{ i.FC|floatformat:"4"  }}</td>
-            <td>{{ i.T|floatformat:"2" }}</td>
-        </tr>
-        {% endif %}
-
-        {% endfor %}
-    </tbody>
-</table>
 </div>
 
 {% endblock content %}
 
 {% block scripts %}
-<script>
-    MathJax = {
-      tex: {
-        inlineMath: [['$', '$'], ['\\(', '\\)']]
-      }
-    };
-</script>
-<!-- Biblioteca Chart.js -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-    Chart.defaults.font.size = 16;
-    let myChartT;
-    function temperatura(dados) {
-        const ctx = document.getElementById('graficoT');
-        myChartT = new Chart(ctx, {
-            type: 'line',
-            tension: 0.4,
-            data: {
-                labels: dados.V, 
-                datasets: [{
-                    label: 'Temperatura',
-                    data: dados.T,
-                }]
-            },
-            options:{
-                plugins:{
-                    title: {
-                        display: true,
-                        text: 'Temperatura ao longo do reator'
-                    }
-                },
-                scales:{
-                    y:{
-                        title:{
-                            display: true,
-                            text: 'Temperatura (K)'
-                        }
-                    },
-                    x:{
-                        title:{
-                            display: true,
-                            text: 'Volume (L)'
-                        }
-                    }
-                }
-            },
-        });
-    };
 
-    const dadosIniciais = {
-        V: {{V}},
-        T: {{T}}, //[{% for item in qs %}{{ item.T }}, {% endfor %}],
-    };
-    temperatura(dadosIniciais);    
+<script type="module">
+    import { criarGrafico1V, criarGrafico3V, criarEstrutura } from "{% static 'js/scripts.js' %}";
+    document.getElementById('botao').addEventListener('click', function(event) {
+    event.preventDefault();
+    const formData = new FormData(document.getElementById('formulario')); // Obtém os dados do formulário
+    fetch("{% url 'e125_pfr_multiplas' %}", {
+        method: "POST",
+        body: formData,
+    })
+    .then(response => response.json()) // Supondo que a resposta seja JSON
+    .then(data => {
+        if (!data.sucesso) {
+        // Se houver erros, exiba-os
+        const errorsContainer = document.getElementById("errors-container");
+        errorsContainer.innerHTML = "";  // Limpe os erros anteriores, se houver
 
-</script>
-
-<script>
-    const ctx = document.getElementById('graficoF').getContext('2d');
-    const myChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            datasets: [
-                {
-                    label: 'FA',
-                    data: {{FA}},
-                    parsing: {
-                        yAxisKey: {{FA}},
-                    },
-                },
-                {
-                    label: 'FB',
-                    data: {{FB}},
-                    parsing: {
-                        yAxisKey: {{FB}},
-                    },
-                },
-                {
-                    label: 'FC',
-                    data: {{FC}},
-                    parsing: {
-                        yAxisKey: {{FC}},
-                    },
-                },
-            ],
-        },
-        options: {
-            plugins:{
-                title: {
-                    display: true,
-                    text: 'Vazão molar das espécies A, B e C ao longo do reator'
-                }
-            },
-            scales: {
-                x: {
-                    type: 'category',
-                    labels: {{V}}, // Especifique os rótulos de categoria para o eixo x
-                    title: {
-                        display: true,
-                        text: 'Volume (L)'
-                    }
-                },
-                y: {
-                    title:{
-                        display: true,
-                        text: 'Vazão molar (mol/s)'
-                    }
-                }
-            },
-        },
+        // Itere sobre os erros e exiba-os
+        for (const field in data.erros) {
+            const errorMessage = data.erros[field].join(", ");
+            const errorElement = document.createElement("div");
+            errorElement.setAttribute("class","p-1");
+            errorsContainer.setAttribute("class","alert alert-danger");
+            errorElement.innerHTML = `<strong>${listaDeSubscritos[field]} :</strong> ${errorMessage}`;
+            errorsContainer.appendChild(errorElement);
+        }
+    } else {
+        document.getElementById("errors-container").innerHTML="";
+        document.getElementById("errors-container").classList.remove("alert");
+        document.getElementById("grafico_T").remove();
+        var chart = document.getElementsByClassName("chart-container")[0];
+        var grafico = document.createElement('canvas');
+        grafico.setAttribute('id','grafico_T');
+        chart.setAttribute('class','chart-container col-9 border rounded my-1');
+        chart.appendChild(grafico);
+        criarGrafico1V(data.T, data.V, "T", "Temperatura (K)", "Volume (L)", "Temperatura ao longo do reator", "grafico_T");
         
-    });
-    </script>
+        document.getElementById("grafico_F").remove();
+        var chart = document.getElementsByClassName("chart-container")[1];
+        var grafico = document.createElement('canvas');
+        grafico.setAttribute('id','grafico_F');
+        chart.setAttribute('class','chart-container col-9 border rounded my-1');
+        chart.appendChild(grafico);
+        criarGrafico3V(data.FA, data.FB, data.FC, data.V, "FA", "FB", "FC", "Vazão molar (mol/s)", "Volume (L)", "Vazão molar das espécies A, B e C ao longo do reator", "grafico_F");
+        // Atualize a página com os dados recebidos da view
+        // Aqui você pode manipular os dados e atualizar sua página
+        
+        document.getElementById("titulo_grafico").innerHTML = `<div class="border-bottom"><h1 class="h2 text-center">Gráficos</h1></div>`;
+
+        const unidade = ["L","mol/s","mol/s","mol/s","K"];
+        criarEstrutura(data, unidade);  
+    };
+    }) 
+});
+
+</script>
 
 
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
 {% endblock scripts %}

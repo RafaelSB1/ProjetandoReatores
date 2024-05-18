@@ -1,72 +1,79 @@
 {% extends 'base.html' %}
-{% load crispy_forms_tags %}
-{% load mathjax %}
 {% load static %}
 
-{% block title %}Problema 12.23{% endblock title %}
+{% block title %}PFR3{% endblock title %}
 
-{% block exemplo %}Problema 12.23{% endblock exemplo %}
+{% block exemplo %}PFR3 - Reações Complexas e Reversíveis{% endblock exemplo %}
 
 {% block content %}
-<!-- Configuração inline do Mathjax -->
-<script type="text/x-mathjax-config">
-    MathJax.Hub.Config({
-        tex2jax: {
-            inlineMath: [['$', '$']],
-            displayMath: [['$$', '$$']],
-            processEscapes: true,
-            processEnvironments: true,
-            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
-            TeX: {
-                equationNumbers: { autoNumber: 'AMS' },
-                extensions: ['AMSmath.js', 'AMSsymbols.js', 'autobold.js']
-            }
-        }
-    });
-    function mostrarElemento(id) {
-        document.getElementById(id).style.display = 'block';
-    }
-    MathJax.Hub.Queue(function() {
-        // Coloque aqui o código para exibir ou fazer algo com o conteúdo
-        mostrarElemento('conteudo1');
-        mostrarElemento('conteudo2');
-        mostrarElemento('conteudo3');
-    });
-</script>
-
 <div class="row border rounded-top p-4" >
-    <p><h5 class="text-center">P12.23B</h5></p>
+    <p><h5 class="text-center">PFR com Troca Térmica, Reações Múltiplas e Reversíveis</h5></p>
+    <p>Baseado no Problema P12.23B da 6ª edição do livro Elementos de Engenharia das Reações Químicas de H. Scott Fogler.</p>
     <p>As reações complexas em fase gasosa são elementares</p>
-    <p class="text-center" id="conteudo1" style="display: none;"> 
-        $$(1) \mathrm{~2} \mathrm{~A} \rightleftarrows 2 \mathrm{~B} \quad-r_{1 \mathrm{~A}}=k_{1 \mathrm{~A}}\left[C_{\mathrm{A}}^2-\frac{C_{\mathrm{B}}}{K_{\mathrm{CA}}}\right] \quad \Delta \mathrm{H}_{\mathrm{Rx} 1 \mathrm{~A}}=-20 \mathrm{~kJ} / \mathrm{molA}$$
-        $$(2) \mathrm{~2} \mathrm{~B}+\mathrm{A} \rightarrow \mathrm{C} \quad r_{2 \mathrm{C}}=k_{2 \mathrm{C}}\left[C_{\mathrm{B}}^2 C_{\mathrm{A}}\right] \quad \Delta H_{\mathrm{RX} 2 \mathrm{~B}}=+30 \mathrm{~kJ} / \mathrm{molB}$$
-    </p>
+    <div class="d-flex flex-wrap justify-content-center" id="conteudo1"> 
+        <div>
+            \begin{gather}
+            (1) \mathrm{~2} \mathrm{~A} \rightleftarrows 2 \mathrm{~B} \notag\\
+            (2) \mathrm{~2} \mathrm{~B}+\mathrm{A} \rightarrow \mathrm{C} \notag\\
+            \end{gather}
+        </div>
+        <div>
+            \begin{gather}
+             \quad-r_{1 \mathrm{~A}}=k_{1 \mathrm{~A}}\left[C_{\mathrm{A}}^2-\frac{C_{\mathrm{B}}}{K_{\mathrm{CA}}}\right] \notag\\
+             \quad r_{2 \mathrm{C}}=k_{2 \mathrm{C}}\left[C_{\mathrm{B}}^2 C_{\mathrm{A}}\right] \notag\\
+            \end{gather}
+        </div>
+        <div>
+            \begin{gather}
+             \quad \Delta \mathrm{H}_{\mathrm{Rx} 1 \mathrm{~A}}=-20 \mathrm{~kJ} / \mathrm{molA} \notag\\
+             \quad \Delta H_{\mathrm{RX} 2 \mathrm{~B}}=+30 \mathrm{~kJ} / \mathrm{molB} \notag\\
+            \end{gather}
+        </div>
+    </div>
     <p>e ocorrem em um PFR com trocador de calor. A puro entra a uma taxa de 5 mol/min, com uma concentração de 0,2 mol/dm³ 
         e a uma temperatura de 300 K. A temperatura de entrada de um refrigerante disponível é 320 K.</p>
     <p>Informações adicionais:</p>
-    <div id="conteudo2" style="display: none;">
-        \begin{aligned}
-        & k_{\mathrm{1A1}}=50 \mathrm{dm}^3 / \mathrm{mol}^2 \cdot \min \text { a } 305 \mathrm{~K}, \operatorname{com} E_{\mathrm{I}}=8.000 \mathrm{~J} / \mathrm{mol} \\
-        & k_{2 \mathrm{C} 2}=4.000 \mathrm{dm}^9 / \mathrm{mol}^3 \cdot \min \text { a } 310 \mathrm{~K}, \operatorname{com} E_2=4.000 \mathrm{~J} / \mathrm{mol} \\
-        & K_{\mathrm{CA}}=\mathrm{10} \mathrm{~dm}^3 / \mathrm{mol} \mathrm{~a~} 315 \mathrm{~K}
-        \end{aligned}
+    <div class="d-flex flex-wrap justify-content-center align-items-center" id="conteudo2">
+        <div>
+            \begin{gather}
+            & k_{\mathrm{1A1}}=50 \mathrm{dm}^3 / \mathrm{mol}^2 \cdot \min \text { a } 305 \mathrm{~K} \notag\\
+            & k_{2 \mathrm{C} 2}=4.000 \mathrm{dm}^9 / \mathrm{mol}^3 \cdot \min \text { a } 310 \mathrm{~K} \notag\\
+            & K_{\mathrm{CA}}=\mathrm{10} \mathrm{~dm}^3 / \mathrm{mol} \mathrm{~a~} 315 \mathrm{~K} \notag
+            \end{gather}
+        </div>
+        <div>
+            \begin{gather}
+            & E_1=8.000 \mathrm{~J} / \mathrm{mol} \notag\\
+            & E_2=4.000 \mathrm{~J} / \mathrm{mol} \notag
+            \end{gather}
+        </div>      
     </div>
     <p>Nota: Essa é a constante de equilíbrio com relação a A na reação 1 quando a equação de van't Hoff é usada.</p>
-    <div id="conteudo3" style="display: none;">
-        \begin{aligned}
-        & U a=200 \frac{\mathrm{J}}{\mathrm{dm}^3 \cdot \min \mathrm{K}} \quad C_{\mathrm{P}_{\text {Refri }}}=10 \mathrm{~J} / \mathrm{mol} / \mathrm{K} \quad C_{\mathrm{P}_{\mathrm{B}}}=80 \mathrm{~J} / \mathrm{mol} / \mathrm{K} \quad C_{\mathrm{P}_{\mathrm{C}}}=100 \mathrm{~J} / \mathrm{mol} / \mathrm{K} \\
-        & \dot{m}_{\mathrm{C}}=50 \mathrm{~g} / \mathrm{min} \quad C_{\mathrm{P}_{\mathrm{A}}}=20 \mathrm{~J} / \mathrm{mol} / \mathrm{K} \quad R=8,31 \mathrm{~J} / \mathrm{mol} / \mathrm{K} \\
-        &
-        \end{aligned}
+    <div id="conteudo3" class="d-flex flex-wrap justify-content-center align-items-center">
+        <div>
+            \begin{gather}
+            & U a=200 \frac{\mathrm{J}}{\mathrm{dm}^3 \cdot \min \mathrm{K}} \notag\\
+            & \dot{m}_{\mathrm{C}}=50 \mathrm{~g} / \mathrm{min} \notag\\
+            & \quad R=8,31 \mathrm{~J} / \mathrm{mol} / \mathrm{K} \notag\\
+            & \quad C_{\mathrm{P}_{\text {Refri }}}=10 \mathrm{~J} / \mathrm{mol} / \mathrm{K} \notag
+            & \end{gather}
+        </div>
+        <div>
+            \begin{gather}
+            & \quad C_{\mathrm{P}_{\mathrm{A}}}=20 \mathrm{~J} / \mathrm{mol} / \mathrm{K} \notag\\
+            & \quad C_{\mathrm{P}_{\mathrm{B}}}=80 \mathrm{~J} / \mathrm{mol} / \mathrm{K} \notag\\
+            & \quad C_{\mathrm{P}_{\mathrm{C}}}=100 \mathrm{~J} / \mathrm{mol} / \mathrm{K} \notag
+            & \end{gather}
+        </div>
     </div>
     <p>O volume do reator é 10 dm³.</p>
     <p><b>(a)</b> Plote (F<sub>A</sub>, F<sub>B</sub>, F<sub>C</sub>) em um único gráfico e (T e Ta), em outro, ao longo do reator, para operação adiabática, para 
-        transferência de calor com Ta constante e para transferência de calor cocorrente e em contracorrente com Ta variável. Basta 
-        ativar uma cópia do seu código e saída para troca cocorrente. <b>Operação adiabática</b></p>   
+        transferência de calor com Ta constante e para transferência de calor concorrente e em contracorrente com Ta variável. Basta 
+        ativar uma cópia do seu código e saída para troca concorrente. <b>Operação adiabática</b></p>   
     <p><b>(b)</b> Qual é a temperatura máxima e em qual volume de reator ela é atingida?</p>
     <p><b>(c)</b> Em que volume de reator a vazão molar de B é máxima e qual é a F<sub>Bmáx</sub> nesse valor? <b>Ta constante</b></p>
     <p><b>(d)</b> Qual é a temperatura máxima e em qual volume de reator ela é atingida?</p>
-    <p><b>(e)</b> Em que volume de reator a vazão molar de B é máxima e qual é a F<sub>Bmáx</sub> nesse valor? <b>Transferência cocorrente</b></p>
+    <p><b>(e)</b> Em que volume de reator a vazão molar de B é máxima e qual é a F<sub>Bmáx</sub> nesse valor? <b>Transferência concorrente</b></p>
     <p><b>(f)</b>Em que volume de reator, Ta torna-se maior que T? Por que ela se torna maior? <b>Transferência em contracorrente</b></p>
     <p><b>(g)</b> Em que volume de reator Ta torna-se maior que T? Dica: Suponha Ta na entrada em torno de 350 K.</p>
 
@@ -74,20 +81,20 @@
 
 <form  method="post" id="formulario" action="{% url 'p1223_pfr_multiplas_reversivel' %}">
     {% csrf_token %}
-    <div class="row border rounded-bottom">   
-        <div class="col-md p-3">
+    <div class="row border rounded-bottom justify-content-center py-3">   
+        <div class="col-md p-md-3 text-center">
             {% for field in form %}
             {% if field.name == 'x' %}{% else %}
-            {% if field.name == 'k1' %}</div><div class="col-md p-3">{% endif %}
-            <div class="row g-3 align-items-center py-1 ">
+            {% if field.name == 'k1' %}</div><div class="col-md p-md-3">{% endif %}
+            <div class="d-flex flex-row flex-wrap g-3 align-items-center py-1">
                 <div class="col-2 text-center">
                     <label for="" class="col-form-label">{{ field.name }}</label>
                 </div>
-                <div class="col-auto">
+                <div class="col-auto text-center">
                     {{ field }}
                 </div>
-                <div class="col-auto">
-                    <span class="form-text">{{ field.help_text }}</span> 
+                <div class="col-auto text-center">
+                    <span class="form-text px-4">{{ field.help_text }}</span> 
                 </div>
             </div>
             {% endif %}{% endfor %}
@@ -98,179 +105,99 @@
         {% endif %}{% endfor %}
     </div>
     
-    <div class="text-center py-3">
-        <input class="btn btn-light border-black" type="submit" value="Enviar" id="submit">
-    </div> 
+    <section class="mx-md-3 d-flex flex-wrap">
+        <div class="text-center py-2 col-12 col-md-3">
+            <button type="button" class="btn border border-white p-1" id="lista-de-simbolos"
+                    data-bs-toggle="popover"
+                    data-bs-html="true"
+                    data-bs-placement="bottom"
+                    data-bs-content=
+                    "{% for field in form %}{% if field.name != 'x' %}
+                    <div class='fs-6 py-1'><b class='fw-semibold '>{{ field.name }}:</b> {{ field.label }}</div>
+                    {% endif %}{% endfor %}">
+                Lista de Símbolos <i class="bi bi-question-square"></i>
+            </button>
+        </div>
+        <div class="col-12 col-md-6 text-center py-3 justify-content-center">
+            <input class="btn btn-light border-black" type="submit" value="Enviar" id="botao">
+        </div>
+    </section>
+    <div class="d-flex justify-content-center"><div class="flex-shrink-0" id="errors-container"></div></div>
 </form>
 
-<div class="pt-5">
-    <div class="border-bottom"><h1 class="h2 text-center">Gráficos</h1></div>
-</div>
+<section class="d-flex flex-wrap justify-content-center pt-5" id="cardResultados"></section>
+
+<div class="pt-5" id="titulo_grafico"></div>
+
 <div class="container-fluid">
-    <div class="col-md p-4">
-        <div class="chart-container" style="position: relative">
+    <div class="row py-4 justify-content-center">
+        <div class="col-12 col-md-6 chart-container">
             <canvas id="grafico_F"></canvas>
         </div>
-    </div>
-    <div class="col-md p-4">
-        <div class="chart-container" style="position: relative">
+        <div class="col-12 col-md-6 chart-container">
             <canvas id="grafico_T"></canvas>
         </div>
     </div>
 </div>
-
-<div class="py-4">
-    <div class="border-bottom"><h1 class="h2 text-center">Tabelas</h1></div>
-</div>
-<div class="container-fluid">
-<table class="table table-striped table-hover table-sm text-center p-5 border"> 
-    <thead>
-        <tr>
-            <th scope="col">#</th>
-            <th scope="col">V (L)</th>
-            <th scope="col">Ta (K)</th>
-            <th scope="col">T (K)</th>
-            <th scope="col">F<sub>A</sub> (mol/min)</th>
-            <th scope="col">F<sub>B</sub> (mol/min)</th>
-            <th scope="col">F<sub>C</sub> (mol/min)</th>
-        </tr>
-    </thead>
-    <tbody class="table-group-divider">
-        {% for q in qs %}
-        <tr>
-            <td>{{ q.pk }}</td>
-            <td>{{ q.V }}</td>
-            <td>{{ q.Ta0 }}</td>
-            <td>{{ q.T0 }}</td>
-            <td>{{ q.FA0 }}</td>
-            <td>{{ q.FB0 }}</td>
-            <td>{{ q.FC0 }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-</div>
-
 {% endblock content %}
 
 {% block scripts %}
-<script>
-    MathJax = {
-      tex: {
-        inlineMath: [['$', '$'], ['\\(', '\\)']]
-      }
+
+<script type="module">
+    import { criarGrafico2V, criarGrafico3V, criarEstrutura } from "{% static 'js/scripts.js' %}";
+    document.getElementById('botao').addEventListener('click', function(event) {
+    event.preventDefault();
+    const formData = new FormData(document.getElementById('formulario')); // Obtém os dados do formulário
+    fetch("{% url 'p1223_pfr_multiplas_reversivel' %}", {
+        method: "POST",
+        body: formData,
+    })
+    .then(response => response.json()) // Supondo que a resposta seja JSON
+    .then(data => {
+        if (!data.sucesso) {
+        // Se houver erros, exiba-os
+        const errorsContainer = document.getElementById("errors-container");
+        errorsContainer.innerHTML = "";  // Limpe os erros anteriores, se houver
+
+        // Itere sobre os erros e exiba-os
+        for (const field in data.erros) {
+            const errorMessage = data.erros[field].join(", ");
+            const errorElement = document.createElement("div");
+            errorElement.setAttribute("class","p-1");
+            errorsContainer.setAttribute("class","alert alert-danger");
+            errorElement.innerHTML = `<strong>${listaDeSubscritos[field]} :</strong> ${errorMessage}`;
+            errorsContainer.appendChild(errorElement);
+        }
+    } else {
+        document.getElementById("errors-container").innerHTML="";
+        document.getElementById("errors-container").classList.remove("alert");
+        document.getElementById("grafico_F").remove();
+        var chart = document.getElementsByClassName("chart-container")[0];
+        var grafico = document.createElement('canvas');
+        grafico.setAttribute('id','grafico_F');
+        chart.setAttribute('class','chart-container col-9 border rounded my-1');
+        chart.appendChild(grafico);
+        criarGrafico3V(data.FA, data.FB, data.FC, data.V, "FA", "FB", "FC", "Vazão molar (mol/min)", "Volume (L)", "Vazão molar das espécies A, B e C ao longo do reator", "grafico_F");
+        
+        document.getElementById("grafico_T").remove();
+        var chart = document.getElementsByClassName("chart-container")[1];
+        var grafico = document.createElement('canvas');
+        grafico.setAttribute('id','grafico_T');
+        chart.setAttribute('class','chart-container col-9 border rounded my-1');
+        chart.appendChild(grafico);
+        criarGrafico2V(data.T, data.Ta, data.V, "T","Ta", "Temperatura (K)", "Volume (L)", "Temperatura ao longo do reator", "grafico_T");
+        
+        document.getElementById("titulo_grafico").innerHTML = `<div class="border-bottom"><h1 class="h2 text-center">Gráficos</h1></div>`;
+
+        // Atualize a página com os dados recebidos da view
+        // Aqui você pode manipular os dados e atualizar sua página
+
+        const unidade = ["L","mol/min","mol/min","mol/min","K","K"];
+        criarEstrutura(data, unidade);  
     };
-</script>
-<!-- Biblioteca Chart.js -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    }) 
+});
 
-<script>
-    const ctx = document.getElementById('grafico_F').getContext('2d');
-    const myChartF = new Chart(ctx, {
-        type: 'line',
-        data: {
-            datasets: [
-                {
-                    label: 'FA',
-                    data: {{FA}},
-                    parsing: {
-                        yAxisKey: {{FA}},
-                    },
-                },
-                {
-                    label: 'FB',
-                    data: {{FB}},
-                    parsing: {
-                        yAxisKey: {{FB}},
-                    },
-                },
-                {
-                    label: 'FC',
-                    data: {{FC}},
-                    parsing: {
-                        yAxisKey: {{FC}},
-                    },
-                },
-            ],
-        },
-        options: {
-            plugins:{
-                title: {
-                    display: true,
-                    text: 'Conversão ao longo do tempo de reação em um reator Batelada'
-                }
-            },
-            scales: {
-                x: {
-                    type: 'category',
-                    labels: {{V}}, //{{t}}, // Especifique os rótulos de categoria para o eixo x
-                    title: {
-                        display: true,
-                        text: 'Volume (L)'
-                    }
-                },
-                y: {
-                    title:{
-                        display: true,
-                        text: 'Vazão molar (mol/min)'
-                    }
-                }
-            },
-        },
-        
-    });
-</script>
-<script>
-    const ctx2 = document.getElementById('grafico_T').getContext('2d');
-    const myChartT = new Chart(ctx2, {
-        type: 'line',
-        data: {
-            datasets: [
-                {
-                    label: 'T',
-                    data: {{T}},
-                    parsing: {
-                        yAxisKey: {{T}},
-                    },
-                },
-                {
-                    label: 'Ta',
-                    data: {{Ta}},
-                    parsing: {
-                        yAxisKey: {{Ta}},
-                    },
-                },
-            ],
-        },
-        options: {
-            plugins:{
-                title: {
-                    display: true,
-                    text: 'Temperatura (K)'
-                }
-            },
-            scales: {
-                x: {
-                    type: 'category',
-                    labels: {{V}}, // Especifique os rótulos de categoria para o eixo x
-                    title: {
-                        display: true,
-                        text: 'Volume (K)'
-                    }
-                },
-                y: {
-                    title:{
-                        display: true,
-                        text: 'Temperatura (K)'
-                    }
-                }
-            },
-        },
-        
-    });
 </script>
 
-
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
 {% endblock scripts %}

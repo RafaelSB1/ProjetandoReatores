@@ -26,7 +26,11 @@ SECRET_KEY = 'django-insecure-a%!j7gy3n7yp^47s7v9=qv$0_8^1y)sg%f9g=+#=5cu^osnl&g
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
+CSRF_TRUSTED_ORIGINS = ["https://projetandoreatores.fly.dev"]
+
+SESSION_COOKIE_SECURE = True
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 
 # Application definition
@@ -52,6 +56,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'exemplos.middleware.ClearCacheMiddleware',
+
 ]
 
 ROOT_URLCONF = 'django_basico.urls'
@@ -121,7 +127,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = 'static/'
-STATICFILES_DIRS = [os.path.join(BASE_DIR,'templates/static')]
+STATICFILES_DIRS = [os.path.join(BASE_DIR,'static/')]
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field

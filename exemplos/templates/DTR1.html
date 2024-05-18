@@ -1,0 +1,174 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}DTR1{% endblock title %}
+
+{% block exemplo %}DTR1 - Modelos de Segregação e Mistura Máxima {% endblock exemplo %}
+
+{% block content %}
+<div class="row border rounded-top p-4" >
+    <p><h5 class="text-center">DTR em um reator com perturbação do tipo pulso: Modelos de Segregação e Mistura Máxima</h5></p>
+    <p>Baseado no Exemplo 17.4 da 6ª edição do livro Elementos de Engenharia das Reações Químicas de H. Scott Fogler.</p>
+    <p>A dimerização de segunda ordem em fase líquida,</p>
+    <div class="d-flex flex-wrap justify-content-center" id="conteudo1"> 
+        <div>
+            \begin{gather}
+            \mathrm{~2} \mathrm{~A} \rightarrow \mathrm{~B} \quad r_A=-kC_A²\notag\\
+            \end{gather}
+        </div>
+    </div>
+    <p>para a qual k = 0,01 dm³/(mol·min), ocorre a uma temperatura de reação de 320 K. A alimentação é A puro, com CA0 = 8 mol/dm³.
+         O reator é não ideal. O volume do reator é de 1.000 dm³ e a vazão de alimentação para nossa dimerização será de 25 dm³/min.</p>
+
+    <p>Desejamos conhecer os limites para a conversão para diferentes graus possíveis de micromistura para a DTR desse reator.
+         Quais são esses limites?
+        Os alunos de Jofostan realizaram um teste de traçador lançando 100 g de traçador (N0 = 100g) no reator que tem uma vazão
+         volumétrica de entrada de 25 dm³/min (v0 = 25 dm³/min) e, em seguida, mediram a concentração de saída (C(t) em função do
+          tempo t). A curva C é ajustada em um polinômio de grau n, que pode ser definido pelo usuário.</p>
+    <div id="conteudo3" class="d-flex flex-wrap justify-content-center align-items-center">
+        <div>
+            $$ C(t)=a_0 + a_1 t + a_2 t² + a_3 t³ +...+ a_{n} t^n $$
+        </div>
+    </div>
+</div>
+
+<form  method="post" id="formulario" action="{% url 'DTR1' %}">
+    {% csrf_token %}
+    <div class="row border rounded-bottom justify-content-center py-3">   
+        <div class="col-md p-md-3 ">
+            {% for field in form %}
+            <div class="d-flex flex-row flex-wrap g-3 align-items-center py-1">
+                {% if field.name == 't' or field.name == 'C(t)' %}
+                <div class="col-3 text-end px-5">
+                    <label for="" class="col-form-label">{{ field.name }}</label>
+                </div>
+                <div class="col-6 text-center">
+                    {{ field }}
+                </div>
+                {% else %}
+                <div class="col-5 text-end px-5">
+                    <label for="" class="col-form-label">{{ field.name }}</label>
+                </div>
+                <div class="col-auto text-center">
+                    {{ field }}
+                </div>
+                {% endif %}
+                <div class="col-auto text-start">
+                    <span class="form-text px-4">{{ field.help_text }}</span> 
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% for field in form %}{% if field.name == 'x' %}
+        <div class="row p-1 text-center"><div>{{ field.label }}</div></div>
+        <div class="row pb-3 text-center">{{ field }}</div>
+        {% endif %}{% endfor %}
+    </div>
+    
+    <section class="mx-md-3 d-flex flex-wrap">
+        <div class="text-center py-2 col-12 col-md-3">
+            <button type="button" class="btn border border-white p-1" id="lista-de-simbolos"
+                    data-bs-toggle="popover"
+                    data-bs-html="true"
+                    data-bs-placement="bottom"
+                    data-bs-content=
+                    "{% for field in form %}{% if field.name != 'x' %}
+                    <div class='fs-6 py-1'><b class='fw-semibold '>{{ field.name }}:</b> {{ field.label }}</div>
+                    {% endif %}{% endfor %}">
+                Lista de Símbolos <i class="bi bi-question-square"></i>
+            </button>
+        </div>
+        <div class="col-12 col-md-6 text-center py-3 justify-content-center">
+            <input class="btn btn-light border-black" type="submit" value="Enviar" id="botao">
+        </div>
+    </section>
+    <div class="d-flex justify-content-center"><div class="flex-shrink-0" id="errors-container"></div></div>
+</form>
+
+<section class="d-flex flex-wrap justify-content-center pt-5" id="cardResultados"></section>
+
+<div class="pt-5" id="titulo_grafico"></div>
+
+<div class="container-fluid">
+    <div class="row py-4 justify-content-center">
+        <div class="col-12 col-md-6 chart-container">
+            <canvas id="grafico_C"></canvas>
+        </div>
+        <div class="col-12 col-md-6 chart-container">
+            <canvas id="grafico_E"></canvas>
+        </div>
+        <div class="col-12 col-md-6 chart-container">
+            <canvas id="grafico_F"></canvas>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block scripts %}
+
+<script type="module">
+    import { criarGrafico1V, criarEstrutura } from "{% static 'js/scripts.js' %}";
+    document.getElementById('botao').addEventListener('click', function(event) {
+    event.preventDefault();
+    const formData = new FormData(document.getElementById('formulario')); // Obtém os dados do formulário
+    fetch("{% url 'DTR1' %}", {
+        method: "POST",
+        body: formData,
+    })
+    .then(response => response.json()) // Supondo que a resposta seja JSON
+    .then(data => {
+        if (!data.sucesso) {
+        // Se houver erros, exiba-os
+        const errorsContainer = document.getElementById("errors-container");
+        errorsContainer.innerHTML = "";  // Limpa os erros anteriores, se houver
+
+        // Itere sobre os erros e exiba-os
+        for (const field in data.erros) {
+            const errorMessage = data.erros[field].join(", ");
+            const errorElement = document.createElement("div");
+            errorElement.setAttribute("class","p-1");
+            errorsContainer.setAttribute("class","alert alert-danger");
+            errorElement.innerHTML = `<strong>${listaDeSubscritos[field]} :</strong> ${errorMessage}`;
+            errorsContainer.appendChild(errorElement);
+        }
+    } else {
+        document.getElementById("errors-container").innerHTML="";
+        document.getElementById("errors-container").classList.remove("alert");
+        document.getElementById("grafico_C").remove();
+        var chart = document.getElementsByClassName("chart-container")[0];
+        var grafico = document.createElement('canvas');
+        grafico.setAttribute('id','grafico_C');
+        chart.setAttribute('class','chart-container col-9 border rounded my-1');
+        chart.appendChild(grafico);
+        criarGrafico1V(data.C, data.t, "C(t)", "Concentração de traçador (mg/dm³)", "Tempo (min)", "Concentração de traçador na saída do reator ao longo do tempo", "grafico_C");
+        
+        document.getElementById("grafico_E").remove();
+        var chart = document.getElementsByClassName("chart-container")[1];
+        var grafico = document.createElement('canvas');
+        grafico.setAttribute('id','grafico_E');
+        chart.setAttribute('class','chart-container col-9 border rounded my-1');
+        chart.appendChild(grafico);
+        criarGrafico1V(data.E, data.t, "E(t)", "Função de tempo de residência ", "Tempo (min)", "Função de tempo de residência ao longo do tempo", "grafico_E");
+        
+        document.getElementById("grafico_F").remove();
+        var chart = document.getElementsByClassName("chart-container")[2];
+        var grafico = document.createElement('canvas');
+        grafico.setAttribute('id','grafico_F');
+        chart.setAttribute('class','chart-container col-9 border rounded my-1');
+        chart.appendChild(grafico);
+        criarGrafico1V(data.F, data.t, "F(t)", "Função cumulativa de tempos de residência ", "Tempo (min)", "Função cumulativa de tempos de residência ao longo do tempo", "grafico_F");
+
+        document.getElementById("titulo_grafico").innerHTML = `<div class="border-bottom"><h1 class="h2 text-center">Gráficos</h1></div>`;
+
+        // Atualize a página com os dados recebidos da view
+        // Aqui você pode manipular os dados e atualizar sua página
+
+        const unidade = ["min","min²","min³","","",""];
+        criarEstrutura(data.dadosDTR, unidade);  
+    };
+    }) 
+});
+
+</script>
+
+{% endblock scripts %}

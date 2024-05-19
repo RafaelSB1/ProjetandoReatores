@@ -240,7 +240,7 @@ class DTR1Form(forms.ModelForm):
     V = forms.FloatField(initial=1000, help_text="dm³", min_value=0, max_value=10000)
     v0 = forms.FloatField(initial=25, help_text="dm³/min", min_value=1, max_value=1000)
     N0 = forms.FloatField(initial=100, help_text="g", min_value=0, max_value=1000)
-    npolinomio = forms.FloatField(initial=7, help_text="", min_value=0, max_value=10)
+    npolinomio = forms.FloatField(initial=7, help_text="", min_value=0)
 
     class Meta:
         model = DTR1
@@ -256,7 +256,7 @@ class DTR2Form(forms.ModelForm):
     CA0 = forms.FloatField(initial=2, help_text="kmol/m³", min_value=0, max_value=100)
     tau = forms.FloatField(initial=10, help_text="min", min_value=0, max_value=1000,)
     CT0 = forms.FloatField(initial=2000, help_text="mg/dm³", min_value=0, max_value=10000)
-    npolinomio = forms.FloatField(initial=3, help_text="", min_value=0, max_value=10)
+    npolinomio = forms.FloatField(initial=3, help_text="", min_value=0)
 
     class Meta:
         model = DTR2

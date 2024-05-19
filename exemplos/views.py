@@ -633,18 +633,23 @@ def DTR1(request):
         form = DTR1Form(request.POST,)
         if form.is_valid():
             resposta = dtr1(request) #função no teste.py
+            #Erro de regressão:
+            if "erro" in resposta:
+                return JsonResponse({'sucesso': False, 'erro_regressao': resposta["erro"]})
 
             t = list(resposta["t"])
             C = list(resposta["C"])
             E = list(resposta["E"])
             F = list(resposta["F"])
+            dadosC = list(resposta["DadosExperimentaisC"])
+            dadost = list(resposta["DadosExperimentaist"])
             dadosDTR = {'tm':resposta["tm"], '\u03C3²':resposta["variancia"], 'S³':resposta["inclinacao"], 'X':resposta["X"], 'Xseg':resposta["Xseg"], 'XMM':resposta["XMM"]}
             
         else:
             errors = {field: [error for error in field_errors] for field, field_errors in form.errors.items()}
             return JsonResponse({'sucesso': False, 'erros': errors})
 
-    return JsonResponse({"t":t, "C":C,"E":E,"F":F,"dadosDTR": dadosDTR, 'sucesso':True})
+    return JsonResponse({"t":t, "C":C,"E":E,"F":F,"dadosC":dadosC,"dadost":dadost,"dadosDTR": dadosDTR, 'sucesso':True})
 
 def DTR2(request):
     if request.method=="GET":
@@ -655,6 +660,9 @@ def DTR2(request):
         form = DTR2Form(request.POST,)
         if form.is_valid():
             resposta = dtr2(request) #função no teste.py
+            #Erro de regressão:
+            if "erro" in resposta:
+                return JsonResponse({'sucesso': False, 'erro_regressao': resposta["erro"]})
 
             t = list(resposta["t"])
             C = list(resposta["C"])

@@ -112,7 +112,7 @@
 {% block scripts %}
 
 <script type="module">
-    import { criarGrafico1V, criarEstrutura } from "{% static 'js/scripts.js' %}";
+    import { criarGrafico1V,criarGraficoDTR, criarEstrutura } from "{% static 'js/scripts.js' %}";
     document.getElementById('botao').addEventListener('click', function(event) {
     event.preventDefault();
     const formData = new FormData(document.getElementById('formulario')); // Obtém os dados do formulário
@@ -123,19 +123,26 @@
     .then(response => response.json()) // Supondo que a resposta seja JSON
     .then(data => {
         if (!data.sucesso) {
-        // Se houver erros, exiba-os
-        const errorsContainer = document.getElementById("errors-container");
-        errorsContainer.innerHTML = "";  // Limpa os erros anteriores, se houver
+            // Se houver erros, exiba-os
+            const errorsContainer = document.getElementById("errors-container");
+            errorsContainer.innerHTML = "";  // Limpa os erros anteriores, se houver
 
-        // Itere sobre os erros e exiba-os
-        for (const field in data.erros) {
-            const errorMessage = data.erros[field].join(", ");
-            const errorElement = document.createElement("div");
-            errorElement.setAttribute("class","p-1");
-            errorsContainer.setAttribute("class","alert alert-danger");
-            errorElement.innerHTML = `<strong>${listaDeSubscritos[field]} :</strong> ${errorMessage}`;
-            errorsContainer.appendChild(errorElement);
-        }
+            // Itere sobre os erros e exiba-os
+            for (const field in data.erros) {
+                const errorMessage = data.erros[field].join(", ");
+                const errorElement = document.createElement("div");
+                errorElement.setAttribute("class","p-1");
+                errorsContainer.setAttribute("class","alert alert-danger");
+                errorElement.innerHTML = `<strong>${listaDeSubscritos[field]} :</strong> ${errorMessage}`;
+                errorsContainer.appendChild(errorElement);
+            }
+            if (data.erro_regressao !== undefined) {
+                    const errorElement = document.createElement("div");
+                    errorElement.setAttribute("class","p-1");
+                    errorsContainer.setAttribute("class","alert alert-danger");
+                    errorElement.innerHTML = `${data.erro_regressao}`;
+                    errorsContainer.appendChild(errorElement);
+            }
     } else {
         document.getElementById("errors-container").innerHTML="";
         document.getElementById("errors-container").classList.remove("alert");
@@ -145,15 +152,19 @@
         grafico.setAttribute('id','grafico_C');
         chart.setAttribute('class','chart-container col-9 border rounded my-1');
         chart.appendChild(grafico);
-        criarGrafico1V(data.C, data.t, "C(t)", "Concentração de traçador (mg/dm³)", "Tempo (min)", "Concentração de traçador na saída do reator ao longo do tempo", "grafico_C");
+        //criarGrafico1V(data.C, data.t, "C(t)", "Concentração de traçador (mg/dm³)", "Tempo (min)", "Concentração de traçador na saída do reator ao longo do tempo", "grafico_C");
         
+        //11111111111111111111111111111111111111111111111111111111111111
+        criarGraficoDTR(data.C,data.dadosC, data.t, data.dadost, "C(t)","Dados Experimentais", "Concentração de traçador (mg/dm³)", "Tempo (min)", "Concentração de traçador na saída do reator ao longo do tempo", "grafico_C")
+        //11111111111111111111111111111111111111111111111111111111111
+
         document.getElementById("grafico_E").remove();
         var chart = document.getElementsByClassName("chart-container")[1];
         var grafico = document.createElement('canvas');
         grafico.setAttribute('id','grafico_E');
         chart.setAttribute('class','chart-container col-9 border rounded my-1');
         chart.appendChild(grafico);
-        criarGrafico1V(data.E, data.t, "E(t)", "Função de tempo de residência ", "Tempo (min)", "Função de tempo de residência ao longo do tempo", "grafico_E");
+        criarGrafico1V(data.E, data.t, "E(t)", "Função de tempo de residência (1/min)", "Tempo (min)", "Função de tempo de residência ao longo do tempo", "grafico_E");
         
         document.getElementById("grafico_F").remove();
         var chart = document.getElementsByClassName("chart-container")[2];
@@ -161,7 +172,7 @@
         grafico.setAttribute('id','grafico_F');
         chart.setAttribute('class','chart-container col-9 border rounded my-1');
         chart.appendChild(grafico);
-        criarGrafico1V(data.F, data.t, "F(t)", "Função cumulativa de tempos de residência ", "Tempo (min)", "Função cumulativa de tempos de residência ao longo do tempo", "grafico_F");
+        criarGrafico1V(data.F, data.t, "F(t)", "Função cumulativa de tempos de residência", "Tempo (min)", "Função cumulativa de tempos de residência ao longo do tempo", "grafico_F");
 
         document.getElementById("titulo_grafico").innerHTML = `<div class="border-bottom"><h1 class="h2 text-center">Gráficos</h1></div>`;
 

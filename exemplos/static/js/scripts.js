@@ -9,7 +9,7 @@ export function criarGrafico1V(Y, X, legendaY, texto_eixoY, texto_eixoX, titulo,
             label: legendaY,
             data: Y,
             parsing: {
-                yAxisKey: legendaY, // Coloque a chave correta aqui, se necessário
+                yAxisKey: legendaY,
             },
             },
         ],
@@ -222,6 +222,55 @@ export function criarGrafico4V(Y1, Y2, Y3, Y4, X, legendaY1, legendaY2, legendaY
         
     });
 };
+
+export function criarGraficoDTR(Y1, Y2, X1, X2, legendaY1, legendaY2, texto_eixoY, texto_eixoX, titulo, id) {
+    const ctx = document.getElementById(id).getContext('2d');
+    const myChart = new Chart(ctx, {
+        type: 'scatter', //gráfico para dispersão
+        data: {
+            datasets: [
+                {
+                    label: legendaY1,
+                    data: Y1.map((value, index) => ({ x: X1[index], y: value })), // Convertendo para o formato de dados de dispersão
+                    pointBackgroundColor: 'rgba(75, 192, 192, 1)', // Cor dos pontos para a primeira série de dados
+                },
+                {
+                    label: legendaY2,
+                    data: Y2.map((value, index) => ({ x: X2[index], y: value })), // Convertendo para o formato de dados de dispersão
+                    pointBackgroundColor: 'rgba(153, 102, 255, 1)', // Cor dos pontos para a segunda série de dados
+                },
+            ],
+        },
+        options: {
+            maintainAspectRatio: false,
+            plugins: {
+                title: {
+                    display: true,
+                    text: titulo,
+                },
+            },
+            scales: {
+                x: {
+                    type: 'category',
+                    title: {
+                        display: true,
+                        text: texto_eixoX,
+                    },
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: texto_eixoY,
+                    },
+                },
+            },
+            layout: {
+                padding: 20,
+            },
+        },
+    });
+};
+
 
 const resultadosArray = [];
 const contadorResultado = [];

@@ -927,6 +927,14 @@ def dtr1(request):
     dadosC = np.array(json.loads(request.POST.get("C(t)"))) #mg/dm³
 
     grau_de_regressao = float(request.POST.get("npolinomio"))
+
+    #Erros
+    if len(dadosC)!=len(t):
+        return {"erro":'Os vetores C(t) e t devem ter o mesmo número de dados'}
+
+    if grau_de_regressao+1>=len(dadosC):
+        return {"erro":'O número de dados deve ser no mínimo n+1, sendo "n" o grau da regressão'}
+
     regressaoC = np.polyfit(t,dadosC,grau_de_regressao)
     C = np.poly1d(regressaoC)
     E = C/(C.integ()(t[-1])-C.integ()(t[0]))
@@ -980,6 +988,15 @@ def dtr2(request):
     t = np.array(json.loads(request.POST.get("t"))) #min
     dadosC = np.array(json.loads(request.POST.get("C(t)"))) #mg/dm³
 
+    grau_de_regressao = float(request.POST.get("npolinomio"))
+
+    #Erros
+    if len(dadosC)!=len(t):
+        return {"erro":'Os vetores C(t) e t devem ter o mesmo número de dados'}
+
+    if grau_de_regressao+1>=len(dadosC):
+        return {"erro":'O número de dados deve ser no mínimo n+1, sendo "n" o grau da regressão'}
+
     lndadosC = []
     for C in dadosC:
         lnC = np.log(CT0/(CT0-C))
@@ -1003,7 +1020,6 @@ def dtr2(request):
     if X<0 or X>1:
         X = ((2*const+1) + ((2*const+1)**2-4*const*const)**0.5)/2/const #baskara positivo
 
-    grau_de_regressao = float(request.POST.get("npolinomio"))
     regressaoC = np.polyfit(t,dadosC,grau_de_regressao)
     C = np.poly1d(regressaoC)
     F = C/CT0
@@ -1024,7 +1040,7 @@ def dtr2(request):
     E = list(E(tODE))
     F = list(F(tODE))
 
-    return {"t":np.round(tODE,1), "C":C, "E":E, "F":F, "tm":[round(tm,2)],
+    return {"t":np.round(tODE,1), "C":C, "E":E, "F":F, "DadosExperimentaisC":dadosC,"DadosExperimentaist":t, "tm":[round(tm,2)],
      "variancia":["{:.2e}".format(variancia)],"inclinacao":["{:.2e}".format(inclinacao,2)],
      "Xideal":[round(X,4)], "Xmodelo":[round(Xmodelo,4)], "alfa":[round(alfa,2)],
      "beta":[round(beta,2)], "tauS":[round(tauS,2)]}
@@ -1122,7 +1138,7 @@ def dtr4(request):
     coeficientes = np.polyfit([teta[0],teta[1]],[CC0[0],CC0[1]],1)
     m2 = coeficientes[0]
     interceptacao2 = coeficientes[1]
-    beta = interceptacao2*alfa*(m1-m2)+alfa*m2+1
+    beta = interceptacao1*alfa*(m1-m2)+alfa*m2+1
     XCSTR = tau*k/(1+tau*k)
     XPFR = 1-np.exp(-tau*k)
     numeradorX = (beta + alfa * tau * k) * (beta + (1 - alfa) * tau * k) - beta**2
@@ -1151,7 +1167,7 @@ def dtr4(request):
     return {"t":np.round(tODE,1), "C":C, "E":E, "F":F, "tm":[round(tm,2)],
      "variancia":["{:.2e}".format(variancia)],"inclinacao":["{:.2e}".format(inclinacao,2)],
      "X":[round(X,4)], "X(CSTR)":[round(XCSTR,4)], "X(PFR)":[round(XPFR,4)],
-     "m1":[round(m1,4)], "m2":[round(m2,4)], "Intersecao": [round(interceptacao2,4)],
+     "m1":[round(m1,4)], "m2":[round(m2,4)], "Intersecao": [round(interceptacao1,4)],
      "alfa":[round(alfa,2)], "beta":[round(beta,2)]}
 
 ######## DTR4 #########/

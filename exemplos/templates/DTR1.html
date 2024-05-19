@@ -131,6 +131,13 @@
             errorElement.innerHTML = `<strong>${listaDeSubscritos[field]} :</strong> ${errorMessage}`;
             errorsContainer.appendChild(errorElement);
         }
+        if (data.erro_regressao !== undefined) {
+                    const errorElement = document.createElement("div");
+                    errorElement.setAttribute("class","p-1");
+                    errorsContainer.setAttribute("class","alert alert-danger");
+                    errorElement.innerHTML = `${data.erro_regressao}`;
+                    errorsContainer.appendChild(errorElement);
+        }
     } else {
         document.getElementById("errors-container").innerHTML="";
         document.getElementById("errors-container").classList.remove("alert");

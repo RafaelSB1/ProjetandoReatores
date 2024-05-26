@@ -4,8 +4,6 @@ from django.core.files.base import File
 from django.db.models.base import Model
 from django.forms.utils import ErrorList
 from .models import *
-from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Div, Field, HTML
 
 class E125Form(forms.ModelForm):
 
@@ -273,6 +271,7 @@ class DTR3Form(forms.ModelForm):
     V = forms.FloatField(initial=1000, help_text="dm³", min_value=0, max_value=10000)
     v0 = forms.FloatField(initial=25, help_text="dm³/min", min_value=1, max_value=1000)
     N0 = forms.FloatField(initial=100, help_text="g", min_value=0, max_value=1000)
+    npolinomio = forms.FloatField(initial=6, help_text="", min_value=0)
 
     class Meta:
         model = DTR3
@@ -287,6 +286,7 @@ class DTR4Form(forms.ModelForm):
     k = forms.FloatField(initial=0.03, help_text="1/min", min_value=0,)
     V = forms.FloatField(initial=1000, help_text="dm³", min_value=0, max_value=10000)
     v0 = forms.FloatField(initial=25, help_text="dm³/min", min_value=1, max_value=1000)
+    npolinomio = forms.FloatField(initial=6, help_text="", min_value=0)
 
     class Meta:
         model = DTR4

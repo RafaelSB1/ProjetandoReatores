@@ -107,7 +107,7 @@
 {% block scripts %}
 
 <script type="module">
-    import { criarGrafico1V, criarEstrutura } from "{% static 'js/scripts.js' %}";
+    import { criarGrafico1V, criarGraficoDTR, criarEstrutura } from "{% static 'js/scripts.js' %}";
     document.getElementById('botao').addEventListener('click', function(event) {
     event.preventDefault();
     const formData = new FormData(document.getElementById('formulario')); // Obtém os dados do formulário
@@ -115,7 +115,7 @@
         method: "POST",
         body: formData,
     })
-    .then(response => response.json()) // Supondo que a resposta seja JSON
+    .then(response => response.json()) 
     .then(data => {
         if (!data.sucesso) {
         // Se houver erros, exiba-os
@@ -147,15 +147,15 @@
         grafico.setAttribute('id','grafico_C');
         chart.setAttribute('class','chart-container col-9 border rounded my-1');
         chart.appendChild(grafico);
-        criarGrafico1V(data.C, data.t, "C(t)", "Concentração de traçador (mg/dm³)", "Tempo (min)", "Concentração de traçador na saída do reator ao longo do tempo", "grafico_C");
-        
+        criarGraficoDTR(data.C, data.dadosC, data.t, data.dadost, data.r_quadrado, "Curva ajustada", "Dados Experimentais", "Concentração de traçador (mg/dm³)", "Tempo (min)", "Concentração de traçador na saída do reator ao longo do tempo", "grafico_C")
+
         document.getElementById("grafico_E").remove();
         var chart = document.getElementsByClassName("chart-container")[1];
         var grafico = document.createElement('canvas');
         grafico.setAttribute('id','grafico_E');
         chart.setAttribute('class','chart-container col-9 border rounded my-1');
         chart.appendChild(grafico);
-        criarGrafico1V(data.E, data.t, "E(t)", "Função de tempo de residência ", "Tempo (min)", "Função de tempo de residência ao longo do tempo", "grafico_E");
+        criarGrafico1V(data.E, data.t, "E(t)", "Função de tempo de residência (1/min)", "Tempo (min)", "Função de tempo de residência ao longo do tempo", "grafico_E");
         
         document.getElementById("grafico_F").remove();
         var chart = document.getElementsByClassName("chart-container")[2];

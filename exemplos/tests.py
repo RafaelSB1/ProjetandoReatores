@@ -52,7 +52,7 @@ def e102(request):
 
     #DESATIVAÇÃO
     tf= float(request.POST.get("tf")) #dias
-    t = np.arange(0, tf+1, 1)
+    t = np.arange(0, tf, 1)
     vetor_a=odeint(Desativacao, 1, t)
     a=float(vetor_a[-1])
 
@@ -60,7 +60,7 @@ def e102(request):
     X0=0
     CI= np.array([X0])
     Wf=10000 #kg cat
-    W = np.arange(0, Wf+100, 100)  # faixa de variação do catalisador
+    W = np.arange(0, Wf, 500)  # faixa de variação do catalisador
     x = odeint(PBR, CI, W)
 
     i=0
@@ -158,7 +158,7 @@ def e104(request):
         dXddt = k*(1-y0)*a
         return dXddt
 
-    t = np.linspace(0,500,100)
+    t = np.linspace(0,500,30)
     a = 1/(1+kd*t) #isotermico
     CI=0
     Xd = odeint(decaimento,CI,t)
@@ -244,7 +244,7 @@ def e122(request):
     V0 = 0
     Vf = 0.001 #m³/tubo
     x0 = np.array([0, T0, Ta0]) # Conversão, Temperatura e Temperatura do fluido de troca térmica
-    V= np.linspace(V0,Vf,101)
+    V= np.linspace(V0,Vf,30)
 
     # SOLUÇÃO DA EQUAÇÃO
     x = odeint(PFR, x0, V)
@@ -542,7 +542,7 @@ def e127(request):
     #EDO
     CI= np.array([T0,FA0,FB0,FC0,FD0,Ta0])
     Vf=10.1 #L
-    V = np.arange(0, Vf, 0.1)  # faixa de variação do volume
+    V = np.arange(0, Vf, 0.2)  # faixa de variação do volume
     x = odeint(edo_e127, CI, V)
 
     if opcao=="b":
@@ -607,7 +607,7 @@ def e131(request):
     #EDO
     CI= np.array([T0,X0])
     tf=float(request.POST.get("tf"))  #s
-    t = np.arange(0, tf+40, 40)  # faixa de variação do tempo
+    t = np.arange(0, tf, 80)  # faixa de variação do tempo
     x = odeint(Batelada, CI, t)
     return {'t':t, 'x':x}
 
@@ -655,7 +655,7 @@ def e132(request):
     #EDO
     CI= np.array([T0,X0])
     tf=121 #min
-    t = np.arange(0, tf+1, 1)  # faixa de variação do tempo
+    t = np.arange(0, tf+1, 2)  # faixa de variação do tempo
     x = odeint(Adiabatico, CI, t)
 
     return {'t':t, 'x':x}
@@ -716,7 +716,7 @@ def e135(request):
     #EDO
     CI= np.array([Ti,CAi,CBi,CCi])
     tf=1.5 #h
-    t = np.arange(0, tf, 0.015)  # faixa de variação do tempo
+    t = np.arange(0, tf, 0.02)  # faixa de variação do tempo
     x = odeint(Semibatelada, CI, t)
     return {'t':t, 'x':x}
 ######## EXEMPLO 13.5 #########/
@@ -890,7 +890,7 @@ def p1223(request):
     #EDO
     CI= np.array([T0,FA0,FB0,FC0,Ta0])
     Vf=10 #dm³
-    V = np.arange(0, Vf+0.1, 0.1)  # faixa de variação do tempo
+    V = np.linspace(0, Vf, 50)  # faixa de variação do tempo
     x = odeint(Multiplas_e_Reversivel, CI, V)
 
     if opcao=="b":
@@ -940,6 +940,13 @@ def dtr1(request):
     E = C/(C.integ()(t[-1])-C.integ()(t[0]))
     F = E.integ()
 
+    #Calculo de R²
+    y=dadosC
+    y_pred=C(t)
+    sq_res = np.sum((y - y_pred) ** 2)
+    sq_tot = np.sum((y - np.mean(y)) ** 2)
+    r_quadrado = 1 - (sq_res / sq_tot)
+
     def segregado(CI,t):
         X = CI[0]
         dXdt = k*CA0*(1-X)**2
@@ -951,12 +958,12 @@ def dtr1(request):
         dXdlamb = E(lamb)*X/(1-F(lamb)) -k*CA0*(1-X)**2
         return dXdlamb
 
-    tODE = np.linspace(0,t[-1],100)
+    tODE = np.linspace(0,t[-1],len(t)*2)
     CI = [0,0]
     x = odeint(segregado,CI,tODE)
 
     CI = 0
-    lamb = np.linspace(t[-1],0,100)
+    lamb = np.linspace(t[-1],0,len(t)*2)
     xMM = odeint(MM,CI,lamb)
 
     tm= (np.poly1d([1,0])*E).integ()
@@ -971,9 +978,9 @@ def dtr1(request):
     E = list(E(tODE))
     F = list(F(tODE))
 
-    return {"t":np.round(tODE,0), "C":C, "E":E, "F":F, "tm":[round(tm,2)],
+    return {"t":np.round(tODE,2), "C":C, "E":E, "F":F, "DadosExperimentaisC":dadosC.tolist(),"DadosExperimentaist":t.tolist(), "tm":[round(tm,2)],
      "variancia":["{:.2e}".format(variancia)],"inclinacao":["{:.2e}".format(inclinacao,2)],
-     "X":[round(x[-1,0],4)], "Xseg":[round(x[-1,1],4)], "XMM":[round(xMM[-1,0],4)]}
+     "X":[round(x[-1,0],4)], "Xseg":[round(x[-1,1],4)], "XMM":[round(xMM[-1,0],4)], "r_quadrado": [round(r_quadrado,4)]}
 
 ######## DTR1 #########/
 
@@ -1025,6 +1032,13 @@ def dtr2(request):
     F = C/CT0
     E = F.deriv()
 
+    #Calculo de R²
+    y=dadosC
+    y_pred=C(t)
+    sq_res = np.sum((y - y_pred) ** 2)
+    sq_tot = np.sum((y - np.mean(y)) ** 2)
+    r_quadrado = 1 - (sq_res / sq_tot)
+
     tm= (np.poly1d([1,0])*E).integ()
     tm= tm(t[-1])-tm(t[0]) #min
 
@@ -1035,15 +1049,15 @@ def dtr2(request):
     inclinacao = ((np.poly1d([1,0])-tm)**3*E).integ()
     inclinacao = 1/variancia**(3/2)*(inclinacao(t[-1])-inclinacao(t[0])) #min³
 
-    tODE = np.linspace(0,t[-1],100)
+    tODE = np.linspace(0,t[-1],len(t)*2)
     C = list(C(tODE))
     E = list(E(tODE))
     F = list(F(tODE))
 
-    return {"t":np.round(tODE,1), "C":C, "E":E, "F":F, "DadosExperimentaisC":dadosC,"DadosExperimentaist":t, "tm":[round(tm,2)],
+    return {"t":np.round(tODE,2), "C":C, "E":E, "F":F, "DadosExperimentaisC":dadosC.tolist(),"DadosExperimentaist":t.tolist(), "tm":[round(tm,2)],
      "variancia":["{:.2e}".format(variancia)],"inclinacao":["{:.2e}".format(inclinacao,2)],
      "Xideal":[round(X,4)], "Xmodelo":[round(Xmodelo,4)], "alfa":[round(alfa,2)],
-     "beta":[round(beta,2)], "tauS":[round(tauS,2)]}
+     "beta":[round(beta,2)], "tauS":[round(tauS,2)], "r_quadrado": [round(r_quadrado,4)]}
 ######## DTR2 #########/
 
 ######## DTR3 #########
@@ -1057,10 +1071,19 @@ def dtr3(request):
     N0 = float(request.POST.get("N0")) #g
 
     # CSTR pulso
-    t = np.array([0, 0.2, 0.4, 0.6, 0.8, 1, 1.2, 1.4, 1.6, 1.8, 2, 2.2, 2.4, 2.6, 2.8])
-    dadosC = np.array([0, 78, 156, 280, 313, 250, 188, 135, 94, 70, 47, 30, 19, 10, 0]) #mg/dm³
+    t = np.array(json.loads(request.POST.get("t"))) #min
+    dadosC = np.array(json.loads(request.POST.get("C(t)")))#mg/dm³
+    
+    grau_de_regressao = float(request.POST.get("npolinomio"))
 
-    regressaoC = np.polyfit(t,dadosC,3)
+    #Erros
+    if len(dadosC)!=len(t):
+        return {"erro":'Os vetores C(t) e t devem ter o mesmo número de dados'}
+
+    if grau_de_regressao+1>=len(dadosC):
+        return {"erro":'O número de dados deve ser no mínimo n+1, sendo "n" o grau da regressão'}
+
+    regressaoC = np.polyfit(t,dadosC,grau_de_regressao)
     C = np.poly1d(regressaoC)
     E = C/(C.integ()(t[-1])-C.integ()(t[0]))
 
@@ -1088,11 +1111,17 @@ def dtr3(request):
     #valor de n só é arredondado para cima na ultima iteração e para o calculo do fatorial
     n = int(n)+1
 
-    grau_de_regressao = 5
     regressaoC = np.polyfit(t,dadosC,grau_de_regressao)
     C = np.poly1d(regressaoC)
     E = C/(C.integ()(t[-1])-C.integ()(t[0]))
     F = E.integ()
+
+    #Calculo de R²
+    y=dadosC
+    y_pred=C(t)
+    sq_res = np.sum((y - y_pred) ** 2)
+    sq_tot = np.sum((y - np.mean(y)) ** 2)
+    r_quadrado = 1 - (sq_res / sq_tot)
 
     tm= (np.poly1d([1,0])*E).integ()
     tm= tm(t[-1])-tm(t[0]) #min
@@ -1102,14 +1131,14 @@ def dtr3(request):
     inclinacao = ((np.poly1d([1,0])-tm)**3*E).integ()
     inclinacao = 1/variancia**(3/2)*(inclinacao(t[-1])-inclinacao(t[0])) #min³
 
-    tODE = np.linspace(0,t[-1],100)
+    tODE = np.linspace(0,t[-1],len(t)*2)
     C = list(C(tODE))
     E = list(E(tODE))
     F = list(F(tODE))
 
-    return {"t":np.round(tODE,1), "C":C, "E":E, "F":F, "tm":[round(tm,2)],
+    return {"t":np.round(tODE,3), "C":C, "E":E, "F":F, "DadosExperimentaisC":dadosC.tolist(),"DadosExperimentaist":t.tolist(), "tm":[round(tm,2)],
      "variancia":["{:.2e}".format(variancia)],"inclinacao":["{:.2e}".format(inclinacao,2)],
-     "XTES":[round(XTES,4)], "n":[n]}
+     "XTES":[round(XTES,4)], "n":[n], "r_quadrado": [round(r_quadrado,4)]}
 
 ######## DTR3 #########/
 
@@ -1121,12 +1150,22 @@ def dtr4(request):
     tau = V/v0
     k = 0.03 #1/min
 
-    t =  np.array([0, 20, 40, 60, 80, 120, 160, 200, 240, 280, 320]) #min
-    dadosC =  np.array([2000, 1050, 520, 280, 160, 61, 29, 16.4, 10, 6.4, 4]) #mg/dm³
+    t = np.array(json.loads(request.POST.get("t"))) #min
+    dadosC = np.array(json.loads(request.POST.get("C(t)")))#mg/dm³
+
+    grau_de_regressao = float(request.POST.get("npolinomio"))
+
+    #Erros
+    if len(dadosC)!=len(t):
+        return {"erro":'Os vetores C(t) e t devem ter o mesmo número de dados'}
+
+    if grau_de_regressao+1>=len(dadosC):
+        return {"erro":'O número de dados deve ser no mínimo n+1, sendo "n" o grau da regressão'}
+
     teta=t/tau
     CC0=dadosC/dadosC[0]
 
-    regressaoC = np.polyfit(teta,dadosC,6)
+    regressaoC = np.polyfit(teta,dadosC,grau_de_regressao)
     regressaoC = np.poly1d(regressaoC)
     CT0 = dadosC[0]
 
@@ -1145,11 +1184,17 @@ def dtr4(request):
     denominadorX = ((1 + beta + alfa * tau * k) * (beta + (1 - alfa) * tau * k) - beta**2)
     X = numeradorX / denominadorX
 
-    grau_de_regressao = 6
     regressaoC = np.polyfit(t,dadosC,grau_de_regressao)
     C = np.poly1d(regressaoC)
     E = C/(C.integ()(t[-1])-C.integ()(t[0]))
     F = E.integ()
+
+    #Calculo de R²
+    y=dadosC
+    y_pred=C(t)
+    sq_res = np.sum((y - y_pred) ** 2)
+    sq_tot = np.sum((y - np.mean(y)) ** 2)
+    r_quadrado = 1 - (sq_res / sq_tot)
 
     tm= (np.poly1d([1,0])*E).integ()
     tm= tm(t[-1])-tm(t[0]) #min
@@ -1159,15 +1204,16 @@ def dtr4(request):
     inclinacao = ((np.poly1d([1,0])-tm)**3*E).integ()
     inclinacao = 1/variancia**(3/2)*(inclinacao(t[-1])-inclinacao(t[0])) #min³
 
-    tODE = np.linspace(0,t[-1],100)
+    tODE = np.linspace(0,t[-1],len(t)*2)
     C = list(C(tODE))
     E = list(E(tODE))
     F = list(F(tODE))
 
-    return {"t":np.round(tODE,1), "C":C, "E":E, "F":F, "tm":[round(tm,2)],
+    return {"t":np.round(tODE,2), "C":C, "E":E, "F":F, "DadosExperimentaisC":dadosC.tolist(),"DadosExperimentaist":t.tolist(), "tm":[round(tm,2)],
      "variancia":["{:.2e}".format(variancia)],"inclinacao":["{:.2e}".format(inclinacao,2)],
      "X":[round(X,4)], "X(CSTR)":[round(XCSTR,4)], "X(PFR)":[round(XPFR,4)],
      "m1":[round(m1,4)], "m2":[round(m2,4)], "Intersecao": [round(interceptacao1,4)],
-     "alfa":[round(alfa,2)], "beta":[round(beta,2)]}
+     "alfa":[round(alfa,2)], "beta":[round(beta,2)], "r_quadrado": [round(r_quadrado,4)]}
 
 ######## DTR4 #########/
+

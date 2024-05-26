@@ -223,21 +223,24 @@ export function criarGrafico4V(Y1, Y2, Y3, Y4, X, legendaY1, legendaY2, legendaY
     });
 };
 
-export function criarGraficoDTR(Y1, Y2, X1, X2, legendaY1, legendaY2, texto_eixoY, texto_eixoX, titulo, id) {
+export function criarGraficoDTR(Y1, Y2, X1, X2, valorR_quadrado, legendaY1, legendaY2, texto_eixoY, texto_eixoX, titulo, id) {
     const ctx = document.getElementById(id).getContext('2d');
     const myChart = new Chart(ctx, {
-        type: 'scatter', //gráfico para dispersão
+        type: 'line',
         data: {
             datasets: [
                 {
                     label: legendaY1,
                     data: Y1.map((value, index) => ({ x: X1[index], y: value })), // Convertendo para o formato de dados de dispersão
-                    pointBackgroundColor: 'rgba(75, 192, 192, 1)', // Cor dos pontos para a primeira série de dados
+                    type: 'line',
                 },
                 {
                     label: legendaY2,
                     data: Y2.map((value, index) => ({ x: X2[index], y: value })), // Convertendo para o formato de dados de dispersão
-                    pointBackgroundColor: 'rgba(153, 102, 255, 1)', // Cor dos pontos para a segunda série de dados
+                    pointBackgroundColor: 'rgba(150, 0, 50, 1)', // Cor dos pontos para a segunda série de dados
+                    pointBorderColor: 'rgba(0, 0, 0, 1)',
+                    type: 'scatter',
+                    pointRadius: 5
                 },
             ],
         },
@@ -248,10 +251,14 @@ export function criarGraficoDTR(Y1, Y2, X1, X2, legendaY1, legendaY2, texto_eixo
                     display: true,
                     text: titulo,
                 },
-            },
+                subtitle: {
+                    display: true,
+                    text: `R² = ${valorR_quadrado}`,
+                },
+            }, 
             scales: {
                 x: {
-                    type: 'category',
+                    type: 'linear',
                     title: {
                         display: true,
                         text: texto_eixoX,
@@ -384,8 +391,8 @@ function checkScreenSize() {
     }
 }
 // Execute a função quando a página for carregada e quando a janela for redimensionada
-window.addEventListener("load", checkScreenSize);
-window.addEventListener("resize", checkScreenSize);
+//window.addEventListener("load", checkScreenSize);
+//window.addEventListener("resize", checkScreenSize);
 
 $(function () {
     function checkScreenSize1() {

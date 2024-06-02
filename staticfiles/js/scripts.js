@@ -372,7 +372,7 @@ function subscrito() {
     }
 }
 
-window.onload = subscrito;
+//window.onload = subscrito;
 
 function checkScreenSize() {
     // Verifique a largura da janela do navegador

@@ -124,7 +124,7 @@
     document.getElementById('botao').addEventListener('click', function(event) {
     event.preventDefault();
     const formData = new FormData(document.getElementById('formulario')); // Obtém os dados do formulário
-    fetch("{% url 'e135_semibatelada' %}", {
+    fetch("{% url 'e135_semibatelada' %}", { 
         method: "POST",
         body: formData,
     })

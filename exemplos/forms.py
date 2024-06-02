@@ -266,11 +266,10 @@ class DTR2Form(forms.ModelForm):
             self.fields[i].label = listaDeSimbolos[i]
 
 class DTR3Form(forms.ModelForm):
-    k = forms.FloatField(initial=0.01, help_text="dm³/(mol min)", min_value=0,)
+    k = forms.FloatField(initial=0.25, help_text="min"+r"$^{-}$"+"¹", min_value=0,)
     CA0 = forms.FloatField(initial=8, help_text="mol/dm³", min_value=0, max_value=100)
-    V = forms.FloatField(initial=1000, help_text="dm³", min_value=0, max_value=10000)
-    v0 = forms.FloatField(initial=25, help_text="dm³/min", min_value=1, max_value=1000)
-    N0 = forms.FloatField(initial=100, help_text="g", min_value=0, max_value=1000)
+    V = forms.FloatField(initial=200, help_text="dm³", min_value=0, max_value=10000)
+    v0 = forms.FloatField(initial=40, help_text="dm³/min", min_value=1, max_value=1000)
     npolinomio = forms.FloatField(initial=6, help_text="", min_value=0)
 
     class Meta:

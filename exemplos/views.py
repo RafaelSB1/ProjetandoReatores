@@ -390,7 +390,6 @@ def e131_batelada(request):
     else:
         form = E131Form(request.POST)
         if form.is_valid():
-            #form.save()
 
             resposta = e131(request) #função no teste.py
 
@@ -399,30 +398,16 @@ def e131_batelada(request):
             X = []
             
             with transaction.atomic(): # Saving the new data
-                #E131.objects.all().delete() 
                 i=0
                 for y in resposta['t']:
-                    t.append(round(y,2))
+                    t.append(round(y,0))
                 for y in resposta['x']:
                     T.append(round(y[0],2))
-                    X.append(round(y[1],4))
-                    #dados = E131(pk=i, t=round(t[i],2) , T0=round(y[0],2), X0=round(y[1],4))
+                    X.append(round(y[1],2))
                     i+=1
-                    #dados.save()
-            #qs = E131.objects.all()
         else:
             errors = {field: [error for error in field_errors] for field, field_errors in form.errors.items()}
             return JsonResponse({'sucesso': False, 'erros': errors})
-                    
-    context = {
-        'form':form,
-        #'qs': qs,
-        'T': T,
-        'X': X,
-        't': t,
-               }
-    
-    #return render(request, "e131_batelada.html", context=context)
     return JsonResponse({'t':t, 'X':X,'T':T, 'sucesso':True})
 
 
@@ -643,7 +628,7 @@ def DTR1(request):
             F = list(resposta["F"])
             dadosC = resposta["DadosExperimentaisC"]
             dadost = resposta["DadosExperimentaist"]
-            dadosDTR = {'tm':resposta["tm"], '\u03C3²':resposta["variancia"], 'S³':resposta["inclinacao"], 'X':resposta["X"], 'Xseg':resposta["Xseg"], 'XMM':resposta["XMM"]}
+            dadosDTR = {'tm':resposta["tm"], '\u03C3²':resposta["variancia"], 'S³':resposta["inclinacao"], 'XCSTR':resposta["XCSTR"], 'XPFR':resposta["XPFR"], 'Xseg':resposta["Xseg"], 'XMM':resposta["XMM"]}
             
         else:
             errors = {field: [error for error in field_errors] for field, field_errors in form.errors.items()}

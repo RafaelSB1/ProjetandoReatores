@@ -136,8 +136,8 @@ class DTR2(models.Model):
     C = models.CharField(default = "[1000, 1333, 1500, 1666, 1750, 1800]", help_text="mg/dm³", max_length=1000, name="C(t)")
 
 class DTR3(models.Model):
-    t = models.CharField(default = "[0, 0.2, 0.4, 0.6, 0.8, 1, 1.2, 1.4, 1.6, 1.8, 2, 2.2, 2.4, 2.6, 2.8]", help_text="min", max_length=1000)
-    C = models.CharField(default = "[0, 78, 156, 280, 313, 250, 188, 135, 94, 70, 47, 30, 19, 10, 0]", help_text="mg/dm³", max_length=1000, name="C(t)")
+    t = models.CharField(default = "[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 14]", help_text="min", max_length=1000)
+    C = models.CharField(default = "[0, 1.4, 5, 8, 10, 8, 6, 4, 3, 2.2, 1.6, 0.6, 0]", help_text="mg/dm³", max_length=1000, name="C(t)")
 
 class DTR4(models.Model):
     t = models.CharField(default = "[0, 20, 40, 60, 80, 120, 160, 200, 240, 280, 320]", help_text="min", max_length=1000)
